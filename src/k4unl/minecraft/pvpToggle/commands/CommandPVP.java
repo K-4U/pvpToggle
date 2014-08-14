@@ -28,6 +28,9 @@ public class CommandPVP extends CommandBase{
 
 	@Override
 	public void processCommand(ICommandSender sender, String[] var2) {
+        if(var2.length < 1){
+            return;
+        }
 		User sndr = Users.getUserByName(sender.getCommandSenderName());
         if(var2[0].equals("on")){
             if(sndr.getPVP()){
