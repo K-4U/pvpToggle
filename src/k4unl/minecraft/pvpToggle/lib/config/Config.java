@@ -51,6 +51,7 @@ public class Config {
 
 	static {
         configOptions.add(new configOption("keepInventoryOnPVPDeath", false));
+        configOptions.add(new configOption("keepExperienceOnPVPDeath", false));
         configOptions.add(new configOption("showMessageOnLogin", true));
 	}
 	

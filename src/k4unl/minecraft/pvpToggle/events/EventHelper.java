@@ -48,19 +48,25 @@ public class EventHelper {
 
     @SubscribeEvent
     public void onPlayerDeath(PlayerDropsEvent event){
-        if(Config.getBool("keepInventoryOnPVPDeath")){
+        if(Config.getBool("keepInventoryOnPVPDeath") || Config.getBool("keepExperienceOnPVPDeath")){
             if (Users.hasPVPEnabled(((EntityPlayer) event.source.getEntity()).getDisplayName())){
                 if (Users.hasPVPEnabled(((EntityPlayer) event.entityLiving).getDisplayName())){
 
-                    NBTTagList inventory = new NBTTagList();
-
-                    for(int currentIndex = 0; currentIndex < event.drops.size(); ++currentIndex) {
-                        NBTTagCompound itemTag = new NBTTagCompound();
-                        event.drops.get(currentIndex).getEntityItem().writeToNBT(itemTag);
-                        inventory.appendTag(itemTag);
-                    }
                     NBTTagCompound entityData = event.entityPlayer.getEntityData();
-                    entityData.setTag("inventoryOnDeath", inventory);
+                    if(Config.getBool("keepInventoryOnPVPDeath")){
+                        NBTTagList inventory = new NBTTagList();
+
+                        for(int currentIndex = 0; currentIndex < event.drops.size(); ++currentIndex) {
+                            NBTTagCompound itemTag = new NBTTagCompound();
+                            event.drops.get(currentIndex).getEntityItem().writeToNBT(itemTag);
+                            inventory.appendTag(itemTag);
+                        }
+
+                        entityData.setTag("inventoryOnDeath", inventory);
+                    }
+                    if(Config.getBool("keepExperienceOnPVPDeath")){
+                        entityData.setFloat("experienceOnDeath", event.entityPlayer.experience);
+                    }
                     event.setCanceled(true);
                 }
             }
@@ -69,14 +75,17 @@ public class EventHelper {
 
     @SubscribeEvent
     public void OnPlayerRespawn(PlayerEvent.Clone event){
-        if(Config.getBool("keepInventoryOnPVPDeath")){
-            if(event.wasDeath){
-                NBTTagCompound entityData = event.original.getEntityData();
+        if(event.wasDeath){
+            NBTTagCompound entityData = event.original.getEntityData();
+            if(Config.getBool("keepInventoryOnPVPDeath")){
                 NBTTagList inventory = entityData.getTagList("inventoryOnDeath", 10);
                 for(int i = 0; i < inventory.tagCount(); i++){
                     ItemStack created = ItemStack.loadItemStackFromNBT(inventory.getCompoundTagAt(i));
                     event.entityPlayer.inventory.addItemStackToInventory(created);
                 }
+            }
+            if(Config.getBool("keepExperienceOnPVPDeath")){
+                event.entityPlayer.experience = entityData.getFloat("experienceOnDeath");
             }
         }
     }
