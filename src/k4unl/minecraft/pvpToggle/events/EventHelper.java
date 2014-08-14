@@ -49,25 +49,27 @@ public class EventHelper {
     @SubscribeEvent
     public void onPlayerDeath(PlayerDropsEvent event){
         if(Config.getBool("keepInventoryOnPVPDeath") || Config.getBool("keepExperienceOnPVPDeath")){
-            if (Users.hasPVPEnabled(((EntityPlayer) event.source.getEntity()).getDisplayName())){
-                if (Users.hasPVPEnabled(((EntityPlayer) event.entityLiving).getDisplayName())){
+            if(event.source.getEntity() instanceof EntityPlayer){
+                if (Users.hasPVPEnabled(((EntityPlayer) event.source.getEntity()).getDisplayName())){
+                    if (Users.hasPVPEnabled(((EntityPlayer) event.entityLiving).getDisplayName())){
 
-                    NBTTagCompound entityData = event.entityPlayer.getEntityData();
-                    if(Config.getBool("keepInventoryOnPVPDeath")){
-                        NBTTagList inventory = new NBTTagList();
+                        NBTTagCompound entityData = event.entityPlayer.getEntityData();
+                        if(Config.getBool("keepInventoryOnPVPDeath")){
+                            NBTTagList inventory = new NBTTagList();
 
-                        for(int currentIndex = 0; currentIndex < event.drops.size(); ++currentIndex) {
-                            NBTTagCompound itemTag = new NBTTagCompound();
-                            event.drops.get(currentIndex).getEntityItem().writeToNBT(itemTag);
-                            inventory.appendTag(itemTag);
+                            for(int currentIndex = 0; currentIndex < event.drops.size(); ++currentIndex) {
+                                NBTTagCompound itemTag = new NBTTagCompound();
+                                event.drops.get(currentIndex).getEntityItem().writeToNBT(itemTag);
+                                inventory.appendTag(itemTag);
+                            }
+
+                            entityData.setTag("inventoryOnDeath", inventory);
                         }
-
-                        entityData.setTag("inventoryOnDeath", inventory);
+                        if(Config.getBool("keepExperienceOnPVPDeath")){
+                            entityData.setFloat("experienceOnDeath", event.entityPlayer.experience);
+                        }
+                        event.setCanceled(true);
                     }
-                    if(Config.getBool("keepExperienceOnPVPDeath")){
-                        entityData.setFloat("experienceOnDeath", event.entityPlayer.experience);
-                    }
-                    event.setCanceled(true);
                 }
             }
         }
