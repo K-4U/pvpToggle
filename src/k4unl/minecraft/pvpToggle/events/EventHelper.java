@@ -7,6 +7,7 @@ import cpw.mods.fml.common.gameevent.TickEvent;
 import k4unl.minecraft.pvpToggle.lib.SpecialChars;
 import k4unl.minecraft.pvpToggle.lib.Users;
 import k4unl.minecraft.pvpToggle.lib.config.Config;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -84,7 +85,12 @@ public class EventHelper {
                 NBTTagList inventory = entityData.getTagList("inventoryOnDeath", 10);
                 for(int i = 0; i < inventory.tagCount(); i++){
                     ItemStack created = ItemStack.loadItemStackFromNBT(inventory.getCompoundTagAt(i));
-                    event.entityPlayer.inventory.addItemStackToInventory(created);
+                    if(!event.entityPlayer.inventory.addItemStackToInventory(created)){
+                        EntityItem ei = new EntityItem(event.entityPlayer.getEntityWorld());
+                        ei.setEntityItemStack(created);
+                        ei.setPosition(event.entity.chunkCoordX, event.entity.chunkCoordY, event.entity.chunkCoordZ);
+                        event.entityPlayer.getEntityWorld().spawnEntityInWorld(ei);
+                    }
                 }
             }
             if(Config.getBool("keepExperienceOnPVPDeath")){
