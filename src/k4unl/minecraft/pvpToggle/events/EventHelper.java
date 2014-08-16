@@ -3,6 +3,7 @@ package k4unl.minecraft.pvpToggle.events;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
 import k4unl.minecraft.pvpToggle.lib.SpecialChars;
 import k4unl.minecraft.pvpToggle.lib.Users;
 import k4unl.minecraft.pvpToggle.lib.config.Config;
@@ -103,6 +104,15 @@ public class EventHelper {
                     event.player.addChatMessage(new ChatComponentText("PVPToggle is enabled on this server. You have PVP currently " + SpecialChars
                       .GREEN + "Disabled"));
                 }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void tickPlayer(TickEvent.PlayerTickEvent event){
+        if(event.phase == TickEvent.Phase.END) {
+            if(event.side.isServer()){
+                Users.tickCoolDown();
             }
         }
     }

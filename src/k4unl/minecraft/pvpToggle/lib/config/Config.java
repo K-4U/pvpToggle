@@ -53,6 +53,7 @@ public class Config {
         configOptions.add(new configOption("keepInventoryOnPVPDeath", false));
         configOptions.add(new configOption("keepExperienceOnPVPDeath", false));
         configOptions.add(new configOption("showMessageOnLogin", true));
+        configOptions.add(new configOption("coolDownInSeconds", 30));
 	}
 	
 	public static void loadConfigOptions(Configuration c){
