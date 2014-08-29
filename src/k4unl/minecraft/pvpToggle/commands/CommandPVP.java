@@ -29,6 +29,7 @@ public class CommandPVP extends CommandBase{
 	@Override
 	public void processCommand(ICommandSender sender, String[] var2) {
         if(var2.length < 1){
+            sender.addChatMessage(new ChatComponentText("Usage: /pvp on/off."));
             return;
         }
 		User sndr = Users.getUserByName(sender.getCommandSenderName());
