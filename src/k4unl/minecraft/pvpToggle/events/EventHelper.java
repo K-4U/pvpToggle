@@ -3,9 +3,11 @@ package k4unl.minecraft.pvpToggle.events;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
 import k4unl.minecraft.pvpToggle.lib.SpecialChars;
 import k4unl.minecraft.pvpToggle.lib.Users;
 import k4unl.minecraft.pvpToggle.lib.config.Config;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -83,7 +85,12 @@ public class EventHelper {
                 NBTTagList inventory = entityData.getTagList("inventoryOnDeath", 10);
                 for(int i = 0; i < inventory.tagCount(); i++){
                     ItemStack created = ItemStack.loadItemStackFromNBT(inventory.getCompoundTagAt(i));
-                    event.entityPlayer.inventory.addItemStackToInventory(created);
+                    if(!event.entityPlayer.inventory.addItemStackToInventory(created)){
+                        EntityItem ei = new EntityItem(event.entityPlayer.getEntityWorld());
+                        ei.setEntityItemStack(created);
+                        ei.setPosition(event.entity.chunkCoordX, event.entity.chunkCoordY, event.entity.chunkCoordZ);
+                        event.entityPlayer.getEntityWorld().spawnEntityInWorld(ei);
+                    }
                 }
             }
             if(Config.getBool("keepExperienceOnPVPDeath")){
@@ -103,6 +110,15 @@ public class EventHelper {
                     event.player.addChatMessage(new ChatComponentText("PVPToggle is enabled on this server. You have PVP currently " + SpecialChars
                       .GREEN + "Disabled"));
                 }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void tickPlayer(TickEvent.PlayerTickEvent event){
+        if(event.phase == TickEvent.Phase.END) {
+            if(event.side.isServer()){
+                Users.tickCoolDown();
             }
         }
     }

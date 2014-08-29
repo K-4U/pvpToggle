@@ -1,9 +1,12 @@
 package k4unl.minecraft.pvpToggle.lib;
 
 
+import k4unl.minecraft.pvpToggle.lib.config.Config;
+
 public class User {
 	private String userName;
 	private boolean hasPVP;
+    private int coolDown;
 	
 	public User(String _username, boolean _hasPVP){
 		userName = _username;
@@ -27,5 +30,16 @@ public class User {
 
     public void setPVP(boolean newPVP){
         hasPVP = newPVP;
+        coolDown = Config.getInt("coolDownInSeconds") * 20;
+    }
+
+    public int getCoolDown(){
+        return coolDown;
+    }
+
+    public void tickCoolDown() {
+        if(coolDown > 0){
+            coolDown --;
+        }
     }
 }

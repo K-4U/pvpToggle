@@ -30,6 +30,16 @@ public class Users {
     public static boolean hasPVPEnabled(String username){
         return getUserByName(username).getPVP();
     }
+
+    public static boolean isInCoolDown(String username){
+        return getUserByName(username).getCoolDown() > 0;
+    }
+
+    public static void tickCoolDown(){
+        for(User u : userList){
+            u.tickCoolDown();
+        }
+    }
 	
 	public static void readFromFile(File dir){
 		userList.clear();

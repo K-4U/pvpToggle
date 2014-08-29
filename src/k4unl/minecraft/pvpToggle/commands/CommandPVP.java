@@ -32,7 +32,13 @@ public class CommandPVP extends CommandBase{
             sender.addChatMessage(new ChatComponentText("Usage: /pvp on/off."));
             return;
         }
+
 		User sndr = Users.getUserByName(sender.getCommandSenderName());
+        if(Users.isInCoolDown(sender.getCommandSenderName())){
+            float coolDownInSeconds = sndr.getCoolDown() / 20.0F;
+            sender.addChatMessage(new ChatComponentText("You're in cooldown! You have to wait " + coolDownInSeconds + "s before switching again."));
+            return;
+        }
         if(var2[0].equals("on")){
             if(sndr.getPVP()){
                 sender.addChatMessage(new ChatComponentText("PVP is already enabled for you"));
@@ -46,7 +52,7 @@ public class CommandPVP extends CommandBase{
             if(sndr.getPVP()){
                 sndr.setPVP(false);
                 sender.addChatMessage(new ChatComponentText(SpecialChars.GREEN + "PVP is now disabled. Players can no longer" +
-                  "can now hurt/kill " + SpecialChars.GREEN + "you! To turn PVP back on, type /pvp on"));
+                  " hurt/kill " + SpecialChars.GREEN + "you! To turn PVP back on, type /pvp on"));
             }else{
                 sender.addChatMessage(new ChatComponentText("PVP is already disabled for you"));
             }
