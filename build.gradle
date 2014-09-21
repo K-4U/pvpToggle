@@ -27,14 +27,28 @@ buildscript {
 
 apply plugin: 'forge'
 
+
+repositories {
+    maven {
+        name "K4Repo"
+        url "http://maven.k-4u.nl"
+    }
+}
+
+
+dependencies {
+    compile "k4unl:k4lib:1.7.10-0.1.1:deobf"
+}
+
 project.ext {
     buildNum = System.getenv("BUILD_NUMBER")
     mcVersion="1.7.10"
 }
 
-version = "0.1.0"
+version = project.ext.mcVersion + "-0.1." + project.ext.buildNum
 group= "k4unl.minecraft.pvpToggle" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "pvpToggle"
+
 
 
 minecraft {
@@ -82,6 +96,6 @@ processResources
 }
 
 jar {
-    appendix = "${project.ext.mcVersion}"
-    classifier = "${project.ext.buildNum}"
+    classifier = "universal"
 }
+
