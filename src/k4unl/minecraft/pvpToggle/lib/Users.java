@@ -86,7 +86,7 @@ public class Users {
 		if(dir != null){
 			Gson gson = new Gson();
 			String json = gson.toJson(userList);
-			Log.info("Saving: " + json);
+			//Log.info("Saving: " + json);
 			String p = dir.getAbsolutePath();
 			p += "/pvpToggle.json";
 			File f = new File(p);
