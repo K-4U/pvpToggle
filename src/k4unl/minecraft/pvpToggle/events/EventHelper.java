@@ -16,6 +16,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -30,12 +31,11 @@ public class EventHelper {
 
     @SubscribeEvent
     public void onLivingAttack(LivingAttackEvent event){
-        if (event.entityLiving instanceof EntityPlayer && event.source != null && event.source.getEntity() != null && event.source.getEntity() instanceof EntityPlayer){
+        if (event.entityLiving instanceof EntityPlayer && event.source != null && event.source.getEntity() != null && event.source.getEntity() instanceof EntityPlayer && !(event.source.getEntity() instanceof FakePlayer)){
             EntityPlayer player = (EntityPlayer) event.source.getEntity();
             if (Users.hasPVPEnabled(((EntityPlayer) event.source.getEntity()).getDisplayName())){
                 if (Users.hasPVPEnabled(((EntityPlayer) event.entityLiving).getDisplayName())){
                     event.setCanceled(false);
-                    return;
                 }else{
                     event.setCanceled(true);
                     player.addChatMessage(new ChatComponentTranslation(SpecialChars.RED + "Both players must have PvP enabled!"));
@@ -51,11 +51,15 @@ public class EventHelper {
     @SubscribeEvent
     public void onPlayerDeath(PlayerDropsEvent event){
         if(Config.getBool("keepInventoryOnPVPDeath") || Config.getBool("keepExperienceOnPVPDeath")){
-            if(event.source.getEntity() instanceof EntityPlayer){
+            if(event.source.getEntity() instanceof EntityPlayer && !(event.source.getEntity() instanceof FakePlayer)){
                 if (Users.hasPVPEnabled(((EntityPlayer) event.source.getEntity()).getDisplayName())){
                     if (Users.hasPVPEnabled(((EntityPlayer) event.entityLiving).getDisplayName())){
 
                         NBTTagCompound entityData = event.entityPlayer.getEntityData();
+
+                        // PvP Kill
+                        entityData.setBoolean("killedByRealPlayer", true);
+
                         if(Config.getBool("keepInventoryOnPVPDeath")){
                             NBTTagList inventory = new NBTTagList();
 
@@ -81,20 +85,23 @@ public class EventHelper {
     public void OnPlayerRespawn(PlayerEvent.Clone event){
         if(event.wasDeath){
             NBTTagCompound entityData = event.original.getEntityData();
-            if(Config.getBool("keepInventoryOnPVPDeath")){
-                NBTTagList inventory = entityData.getTagList("inventoryOnDeath", 10);
-                for(int i = 0; i < inventory.tagCount(); i++){
-                    ItemStack created = ItemStack.loadItemStackFromNBT(inventory.getCompoundTagAt(i));
-                    if(!event.entityPlayer.inventory.addItemStackToInventory(created)){
-                        EntityItem ei = new EntityItem(event.entityPlayer.getEntityWorld());
-                        ei.setEntityItemStack(created);
-                        ei.setPosition(event.entity.chunkCoordX, event.entity.chunkCoordY, event.entity.chunkCoordZ);
-                        event.entityPlayer.getEntityWorld().spawnEntityInWorld(ei);
+            // Only repopulate if killed by real player
+            if (entityData.getBoolean("killedByRealPlayer")) {
+                if(Config.getBool("keepInventoryOnPVPDeath")){
+                    NBTTagList inventory = entityData.getTagList("inventoryOnDeath", 10);
+                    for(int i = 0; i < inventory.tagCount(); i++){
+                        ItemStack created = ItemStack.loadItemStackFromNBT(inventory.getCompoundTagAt(i));
+                        if(!event.entityPlayer.inventory.addItemStackToInventory(created)){
+                            EntityItem ei = new EntityItem(event.entityPlayer.getEntityWorld());
+                            ei.setEntityItemStack(created);
+                            ei.setPosition(event.entity.chunkCoordX, event.entity.chunkCoordY, event.entity.chunkCoordZ);
+                            event.entityPlayer.getEntityWorld().spawnEntityInWorld(ei);
+                        }
                     }
                 }
-            }
-            if(Config.getBool("keepExperienceOnPVPDeath")){
-                event.entityPlayer.experience = entityData.getFloat("experienceOnDeath");
+                if(Config.getBool("keepExperienceOnPVPDeath")){
+                    event.entityPlayer.experience = entityData.getFloat("experienceOnDeath");
+                }
             }
         }
     }

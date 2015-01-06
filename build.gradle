@@ -52,8 +52,20 @@ archivesBaseName = "pvpToggle"
 
 
 minecraft {
-    version = "${project.ext.mcVersion}-10.13.0.1180"
-    assetDir = "../minecraft/assets"
+    version = "${project.ext.mcVersion}-10.13.2.1230"
+
+    // Tweaked to allow K4's and Lex's folder setup styles
+    if (file('../minecraft').exists()) {
+        // K4 project
+        runDir = "../minecraft/assets"
+    } else if (file('../run').exists()) {
+        // Lex multi-project
+        runDir = "../run/assets"
+    } else {
+        // single project
+        runDir = "assets"
+    }
+
     replace "@VERSION@", project.version
 	replace "@BUILDNUM@", project.ext.buildNum
 }
