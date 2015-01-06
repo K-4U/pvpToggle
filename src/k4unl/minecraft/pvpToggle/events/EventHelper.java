@@ -31,25 +31,18 @@ public class EventHelper {
 
     @SubscribeEvent
     public void onLivingAttack(LivingAttackEvent event){
-        if (event.entityLiving instanceof EntityPlayer && event.source != null && event.source.getEntity() != null && event.source.getEntity() instanceof EntityPlayer){
+        if (event.entityLiving instanceof EntityPlayer && event.source != null && event.source.getEntity() != null && event.source.getEntity() instanceof EntityPlayer && !(event.source.getEntity() instanceof FakePlayer)){
             EntityPlayer player = (EntityPlayer) event.source.getEntity();
-            // Check if attacker is FakePlayer
-            if (!(player instanceof FakePlayer)) {
-                // Isn't, carry on as before
-                if (Users.hasPVPEnabled(((EntityPlayer) event.source.getEntity()).getDisplayName())){
-                    if (Users.hasPVPEnabled(((EntityPlayer) event.entityLiving).getDisplayName())){
-                        event.setCanceled(false);
-                    }else{
-                        event.setCanceled(true);
-                        player.addChatMessage(new ChatComponentTranslation(SpecialChars.RED + "Both players must have PvP enabled!"));
-                    }
+            if (Users.hasPVPEnabled(((EntityPlayer) event.source.getEntity()).getDisplayName())){
+                if (Users.hasPVPEnabled(((EntityPlayer) event.entityLiving).getDisplayName())){
+                    event.setCanceled(false);
                 }else{
                     event.setCanceled(true);
                     player.addChatMessage(new ChatComponentTranslation(SpecialChars.RED + "Both players must have PvP enabled!"));
                 }
-            } else {
-                // FakePlayer, attack as usual (Fire the lazors!)
-                event.setCanceled(false);
+            }else{
+                event.setCanceled(true);
+                player.addChatMessage(new ChatComponentTranslation(SpecialChars.RED + "Both players must have PvP enabled!"));
             }
         }
     }
@@ -58,32 +51,30 @@ public class EventHelper {
     @SubscribeEvent
     public void onPlayerDeath(PlayerDropsEvent event){
         if(Config.getBool("keepInventoryOnPVPDeath") || Config.getBool("keepExperienceOnPVPDeath")){
-            if(event.source.getEntity() instanceof EntityPlayer){
-                if (!(event.source.getEntity() instanceof FakePlayer)) {
-                    if (Users.hasPVPEnabled(((EntityPlayer) event.source.getEntity()).getDisplayName())){
-                        if (Users.hasPVPEnabled(((EntityPlayer) event.entityLiving).getDisplayName())){
+            if(event.source.getEntity() instanceof EntityPlayer && !(event.source.getEntity() instanceof FakePlayer)){
+                if (Users.hasPVPEnabled(((EntityPlayer) event.source.getEntity()).getDisplayName())){
+                    if (Users.hasPVPEnabled(((EntityPlayer) event.entityLiving).getDisplayName())){
 
-                            NBTTagCompound entityData = event.entityPlayer.getEntityData();
+                        NBTTagCompound entityData = event.entityPlayer.getEntityData();
 
-                            // PvP Kill
-                            entityData.setBoolean("killedByRealPlayer", true);
+                        // PvP Kill
+                        entityData.setBoolean("killedByRealPlayer", true);
 
-                            if(Config.getBool("keepInventoryOnPVPDeath")){
-                                NBTTagList inventory = new NBTTagList();
+                        if(Config.getBool("keepInventoryOnPVPDeath")){
+                            NBTTagList inventory = new NBTTagList();
 
-                                for(int currentIndex = 0; currentIndex < event.drops.size(); ++currentIndex) {
-                                    NBTTagCompound itemTag = new NBTTagCompound();
-                                    event.drops.get(currentIndex).getEntityItem().writeToNBT(itemTag);
-                                    inventory.appendTag(itemTag);
-                                }
-
-                                entityData.setTag("inventoryOnDeath", inventory);
+                            for(int currentIndex = 0; currentIndex < event.drops.size(); ++currentIndex) {
+                                NBTTagCompound itemTag = new NBTTagCompound();
+                                event.drops.get(currentIndex).getEntityItem().writeToNBT(itemTag);
+                                inventory.appendTag(itemTag);
                             }
-                            if(Config.getBool("keepExperienceOnPVPDeath")){
-                                entityData.setFloat("experienceOnDeath", event.entityPlayer.experience);
-                            }
-                            event.setCanceled(true);
+
+                            entityData.setTag("inventoryOnDeath", inventory);
                         }
+                        if(Config.getBool("keepExperienceOnPVPDeath")){
+                            entityData.setFloat("experienceOnDeath", event.entityPlayer.experience);
+                        }
+                        event.setCanceled(true);
                     }
                 }
             }
