@@ -1,6 +1,6 @@
 package k4unl.minecraft.pvpToggle.commands;
 
-import k4unl.minecraft.pvpToggle.lib.SpecialChars;
+import k4unl.minecraft.k4lib.lib.SpecialChars;
 import k4unl.minecraft.pvpToggle.lib.User;
 import k4unl.minecraft.pvpToggle.lib.Users;
 import net.minecraft.command.CommandBase;
@@ -33,8 +33,8 @@ public class CommandPVP extends CommandBase{
             return;
         }
 
-		User sndr = Users.getUserByName(sender.getCommandSenderName());
-        if(Users.isInCoolDown(sender.getCommandSenderName())){
+		User sndr = Users.getUserByName(sender.getName());
+        if(Users.isInCoolDown(sender.getName())){
             float coolDownInSeconds = sndr.getCoolDown() / 20.0F;
             sender.addChatMessage(new ChatComponentText("You're in cooldown! You have to wait " + coolDownInSeconds + "s before switching again."));
             return;
@@ -57,10 +57,5 @@ public class CommandPVP extends CommandBase{
                 sender.addChatMessage(new ChatComponentText("PVP is already disabled for you"));
             }
         }
-	}
-
-	@Override
-	public List addTabCompletionOptions(ICommandSender cmd, String[] args) {
-		return null;
 	}
 }

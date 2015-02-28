@@ -1,12 +1,8 @@
 package k4unl.minecraft.pvpToggle.events;
 
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
-import k4unl.minecraft.pvpToggle.lib.SpecialChars;
+import k4unl.minecraft.k4lib.lib.SpecialChars;
 import k4unl.minecraft.pvpToggle.lib.Users;
-import k4unl.minecraft.pvpToggle.lib.config.Config;
+import k4unl.minecraft.pvpToggle.lib.config.PvPConfig;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -20,6 +16,9 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class EventHelper {
 
@@ -33,8 +32,8 @@ public class EventHelper {
     public void onLivingAttack(LivingAttackEvent event){
         if (event.entityLiving instanceof EntityPlayer && event.source != null && event.source.getEntity() != null && event.source.getEntity() instanceof EntityPlayer && !(event.source.getEntity() instanceof FakePlayer)){
             EntityPlayer player = (EntityPlayer) event.source.getEntity();
-            if (Users.hasPVPEnabled(((EntityPlayer) event.source.getEntity()).getDisplayName())){
-                if (Users.hasPVPEnabled(((EntityPlayer) event.entityLiving).getDisplayName())){
+            if (Users.hasPVPEnabled(((EntityPlayer) event.source.getEntity()).getName())){
+                if (Users.hasPVPEnabled(((EntityPlayer) event.entityLiving).getName())){
                     event.setCanceled(false);
                 }else{
                     event.setCanceled(true);
@@ -50,17 +49,17 @@ public class EventHelper {
 
     @SubscribeEvent
     public void onPlayerDeath(PlayerDropsEvent event){
-        if(Config.getBool("keepInventoryOnPVPDeath") || Config.getBool("keepExperienceOnPVPDeath")){
+        if(PvPConfig.INSTANCE.getBool("keepInventoryOnPVPDeath") || PvPConfig.INSTANCE.getBool("keepExperienceOnPVPDeath")){
             if(event.source.getEntity() instanceof EntityPlayer && !(event.source.getEntity() instanceof FakePlayer)){
-                if (Users.hasPVPEnabled(((EntityPlayer) event.source.getEntity()).getDisplayName())){
-                    if (Users.hasPVPEnabled(((EntityPlayer) event.entityLiving).getDisplayName())){
+                if (Users.hasPVPEnabled(((EntityPlayer) event.source.getEntity()).getName())){
+                    if (Users.hasPVPEnabled(((EntityPlayer) event.entityLiving).getName())){
 
                         NBTTagCompound entityData = event.entityPlayer.getEntityData();
 
                         // PvP Kill
                         entityData.setBoolean("killedByRealPlayer", true);
 
-                        if(Config.getBool("keepInventoryOnPVPDeath")){
+                        if(PvPConfig.INSTANCE.getBool("keepInventoryOnPVPDeath")){
                             NBTTagList inventory = new NBTTagList();
 
                             for(int currentIndex = 0; currentIndex < event.drops.size(); ++currentIndex) {
@@ -71,7 +70,7 @@ public class EventHelper {
 
                             entityData.setTag("inventoryOnDeath", inventory);
                         }
-                        if(Config.getBool("keepExperienceOnPVPDeath")){
+                        if(PvPConfig.INSTANCE.getBool("keepExperienceOnPVPDeath")){
                             entityData.setFloat("experienceOnDeath", event.entityPlayer.experience);
                         }
                         event.setCanceled(true);
@@ -87,7 +86,7 @@ public class EventHelper {
             NBTTagCompound entityData = event.original.getEntityData();
             // Only repopulate if killed by real player
             if (entityData.getBoolean("killedByRealPlayer")) {
-                if(Config.getBool("keepInventoryOnPVPDeath")){
+                if(PvPConfig.INSTANCE.getBool("keepInventoryOnPVPDeath")){
                     NBTTagList inventory = entityData.getTagList("inventoryOnDeath", 10);
                     for(int i = 0; i < inventory.tagCount(); i++){
                         ItemStack created = ItemStack.loadItemStackFromNBT(inventory.getCompoundTagAt(i));
@@ -99,7 +98,7 @@ public class EventHelper {
                         }
                     }
                 }
-                if(Config.getBool("keepExperienceOnPVPDeath")){
+                if(PvPConfig.INSTANCE.getBool("keepExperienceOnPVPDeath")){
                     event.entityPlayer.experience = entityData.getFloat("experienceOnDeath");
                 }
             }
@@ -107,10 +106,10 @@ public class EventHelper {
     }
 
     @SubscribeEvent
-    public void loggedInEvent(PlayerLoggedInEvent event) {
-        if(Config.getBool("showMessageOnLogin")){
+    public void loggedInEvent(net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent event) {
+        if(PvPConfig.INSTANCE.getBool("showMessageOnLogin")){
             if(!MinecraftServer.getServer().worldServerForDimension(event.player.dimension).isRemote) {
-                if(Users.hasPVPEnabled(event.player.getDisplayName())){
+                if(Users.hasPVPEnabled(event.player.getName())){
                     event.player.addChatMessage(new ChatComponentText("PVPToggle is enabled on this server. You have PVP currently " + SpecialChars
                       .RED + "Enabled"));
                 }else{

@@ -37,22 +37,22 @@ repositories {
 
 
 dependencies {
-    compile "k4unl:k4lib:1.7.10-0.1.1:deobf"
+    compile "k4unl:k4lib:1.8-1.0.5:deobf"
 }
 
 project.ext {
     buildNum = System.getenv("BUILD_NUMBER")
-    mcVersion="1.7.10"
+    mcVersion="1.8"
 }
 
-version = project.ext.mcVersion + "-0.1." + project.ext.buildNum
+version = project.ext.mcVersion + "-1.0." + project.ext.buildNum
 group= "k4unl.minecraft.pvpToggle" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "pvpToggle"
 
 
 
 minecraft {
-    version = "${project.ext.mcVersion}-10.13.2.1230"
+    version = "${project.ext.mcVersion}-11.14.1.1332"
 
     // Tweaked to allow K4's and Lex's folder setup styles
     if (file('../minecraft').exists()) {
