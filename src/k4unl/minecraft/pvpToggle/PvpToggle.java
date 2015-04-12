@@ -9,7 +9,6 @@ import cpw.mods.fml.common.event.*;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import k4unl.minecraft.k4lib.lib.Area;
-import k4unl.minecraft.k4lib.proxy.CommonProxy;
 import k4unl.minecraft.pvpToggle.commands.Commands;
 import k4unl.minecraft.pvpToggle.events.EventHelper;
 import k4unl.minecraft.pvpToggle.lib.Areas;
@@ -19,6 +18,7 @@ import k4unl.minecraft.k4lib.lib.config.ConfigHandler;
 import k4unl.minecraft.pvpToggle.lib.config.ModInfo;
 import k4unl.minecraft.pvpToggle.lib.config.PvPConfig;
 import k4unl.minecraft.pvpToggle.network.NetworkHandler;
+import k4unl.minecraft.pvpToggle.proxy.CommonProxy;
 import net.minecraftforge.common.DimensionManager;
 
 
@@ -35,8 +35,8 @@ public class PvpToggle {
     public static PvpToggle instance;
 
     @SidedProxy(
-      clientSide = "k4unl.minecraft.k4lib.proxy.ClientProxy",
-      serverSide = "k4unl.minecraft.k4lib.proxy.CommonProxy"
+      clientSide = "k4unl.minecraft.pvpToggle.proxy.ClientProxy",
+      serverSide = "k4unl.minecraft.pvpToggle.proxy.CommonProxy"
     )
     public static CommonProxy proxy;
 
@@ -64,8 +64,7 @@ public class PvpToggle {
 
         NetworkHandler.init();
 
-
-        if(event.getSide().equals(Side.SERVER)) {
+        if (event.getSide().equals(Side.SERVER)) {
             EventHelper.init();
         }
     }
@@ -74,6 +73,7 @@ public class PvpToggle {
     @EventHandler
     public void postInit(FMLPostInitializationEvent event) {
 
+        proxy.postInit(event);
     }
 
     @EventHandler
@@ -85,7 +85,7 @@ public class PvpToggle {
     @EventHandler
     public void serverStart(FMLServerStartingEvent event) {
 
-        if(event.getSide().equals(Side.SERVER)) {
+        if (event.getSide().equals(Side.SERVER)) {
             Users.readFromFile(DimensionManager.getCurrentSaveRootDirectory());
             Areas.readFromFile(DimensionManager.getCurrentSaveRootDirectory());
         }

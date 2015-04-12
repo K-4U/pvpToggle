@@ -1,6 +1,7 @@
 package k4unl.minecraft.pvpToggle.proxy;
 
 
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import net.minecraft.entity.player.EntityPlayer;
 
 public class CommonProxy {
@@ -11,5 +12,10 @@ public class CommonProxy {
 
     public EntityPlayer getPlayer() {
         return null;
+    }
+
+
+    public void postInit(FMLPostInitializationEvent event) {
+
     }
 }
