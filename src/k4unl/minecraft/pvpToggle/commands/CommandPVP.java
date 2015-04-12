@@ -1,6 +1,6 @@
 package k4unl.minecraft.pvpToggle.commands;
 
-import k4unl.minecraft.pvpToggle.lib.SpecialChars;
+import k4unl.minecraft.k4lib.lib.SpecialChars;
 import k4unl.minecraft.pvpToggle.lib.User;
 import k4unl.minecraft.pvpToggle.lib.Users;
 import net.minecraft.command.CommandBase;

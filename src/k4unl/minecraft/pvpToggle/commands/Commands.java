@@ -7,5 +7,6 @@ public class Commands {
 	
 	public static void init(FMLServerStartingEvent event){
 		event.registerServerCommand(new CommandPVP());
+        event.registerServerCommand(new CommandPvpToggle());
 	}
 }

@@ -5,12 +5,15 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.*;
+import k4unl.minecraft.k4lib.lib.Area;
 import k4unl.minecraft.pvpToggle.commands.Commands;
 import k4unl.minecraft.pvpToggle.events.EventHelper;
+import k4unl.minecraft.pvpToggle.lib.Areas;
 import k4unl.minecraft.pvpToggle.lib.Log;
 import k4unl.minecraft.pvpToggle.lib.Users;
-import k4unl.minecraft.pvpToggle.lib.config.ConfigHandler;
+import k4unl.minecraft.k4lib.lib.config.ConfigHandler;
 import k4unl.minecraft.pvpToggle.lib.config.ModInfo;
+import k4unl.minecraft.pvpToggle.lib.config.PvPConfig;
 import net.minecraftforge.common.DimensionManager;
 
 
@@ -23,39 +26,50 @@ import net.minecraftforge.common.DimensionManager;
 
 
 public class PvpToggle {
-	@Instance(value=ModInfo.ID)
-	public static PvpToggle instance;
+    @Instance(value = ModInfo.ID)
+    public static PvpToggle instance;
 
-	@EventHandler
-	public void preInit(FMLPreInitializationEvent event){
-		Log.init();
-        ConfigHandler.init(event.getSuggestedConfigurationFile());
-		Users.init();
-	}
-	
-	@EventHandler
-	public void load(FMLInitializationEvent event){		
-		EventHelper.init();
-	}
-	
-	
-	@EventHandler
-	public void postInit(FMLPostInitializationEvent event){
-		
-	}
-	
-	@EventHandler
-	public void onServerStart(FMLServerStartingEvent event) {
-		Commands.init(event);
-	}
-	
-	@EventHandler
-	public void serverStart(FMLServerStartingEvent event){
-		Users.readFromFile(DimensionManager.getCurrentSaveRootDirectory());
-	}
-	
-	@EventHandler
-	public void serverStop(FMLServerStoppingEvent event){
-		Users.saveToFile(DimensionManager.getCurrentSaveRootDirectory());
+    private ConfigHandler PvPConfigHandler = new ConfigHandler();
+
+    @EventHandler
+    public void preInit(FMLPreInitializationEvent event) {
+
+        Log.init();
+        PvPConfig.INSTANCE.init();
+        PvPConfigHandler.init(PvPConfig.INSTANCE, event.getSuggestedConfigurationFile());
+        Areas.init();
+        Users.init();
+    }
+
+    @EventHandler
+    public void load(FMLInitializationEvent event) {
+
+        EventHelper.init();
+    }
+
+
+    @EventHandler
+    public void postInit(FMLPostInitializationEvent event) {
+
+    }
+
+    @EventHandler
+    public void onServerStart(FMLServerStartingEvent event) {
+
+        Commands.init(event);
+    }
+
+    @EventHandler
+    public void serverStart(FMLServerStartingEvent event) {
+
+        Users.readFromFile(DimensionManager.getCurrentSaveRootDirectory());
+        Areas.readFromFile(DimensionManager.getCurrentSaveRootDirectory());
+    }
+
+    @EventHandler
+    public void serverStop(FMLServerStoppingEvent event) {
+
+        Users.saveToFile(DimensionManager.getCurrentSaveRootDirectory());
+        Areas.saveToFile(DimensionManager.getCurrentSaveRootDirectory());
 	}
 }

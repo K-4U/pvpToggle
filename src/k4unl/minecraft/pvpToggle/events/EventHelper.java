@@ -4,9 +4,9 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
-import k4unl.minecraft.pvpToggle.lib.SpecialChars;
+import k4unl.minecraft.k4lib.lib.SpecialChars;
 import k4unl.minecraft.pvpToggle.lib.Users;
-import k4unl.minecraft.pvpToggle.lib.config.Config;
+import k4unl.minecraft.pvpToggle.lib.config.PvPConfig;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -50,7 +50,7 @@ public class EventHelper {
 
     @SubscribeEvent
     public void onPlayerDeath(PlayerDropsEvent event){
-        if(Config.getBool("keepInventoryOnPVPDeath") || Config.getBool("keepExperienceOnPVPDeath")){
+        if(PvPConfig.INSTANCE.getBool("keepInventoryOnPVPDeath") || PvPConfig.INSTANCE.getBool("keepExperienceOnPVPDeath")){
             if(event.source.getEntity() instanceof EntityPlayer && !(event.source.getEntity() instanceof FakePlayer)){
                 if (Users.hasPVPEnabled(((EntityPlayer) event.source.getEntity()).getDisplayName())){
                     if (Users.hasPVPEnabled(((EntityPlayer) event.entityLiving).getDisplayName())){
@@ -60,7 +60,7 @@ public class EventHelper {
                         // PvP Kill
                         entityData.setBoolean("killedByRealPlayer", true);
 
-                        if(Config.getBool("keepInventoryOnPVPDeath")){
+                        if(PvPConfig.INSTANCE.getBool("keepInventoryOnPVPDeath")){
                             NBTTagList inventory = new NBTTagList();
 
                             for(int currentIndex = 0; currentIndex < event.drops.size(); ++currentIndex) {
@@ -71,7 +71,7 @@ public class EventHelper {
 
                             entityData.setTag("inventoryOnDeath", inventory);
                         }
-                        if(Config.getBool("keepExperienceOnPVPDeath")){
+                        if(PvPConfig.INSTANCE.getBool("keepExperienceOnPVPDeath")){
                             entityData.setFloat("experienceOnDeath", event.entityPlayer.experience);
                         }
                         event.setCanceled(true);
@@ -87,7 +87,7 @@ public class EventHelper {
             NBTTagCompound entityData = event.original.getEntityData();
             // Only repopulate if killed by real player
             if (entityData.getBoolean("killedByRealPlayer")) {
-                if(Config.getBool("keepInventoryOnPVPDeath")){
+                if(PvPConfig.INSTANCE.getBool("keepInventoryOnPVPDeath")){
                     NBTTagList inventory = entityData.getTagList("inventoryOnDeath", 10);
                     for(int i = 0; i < inventory.tagCount(); i++){
                         ItemStack created = ItemStack.loadItemStackFromNBT(inventory.getCompoundTagAt(i));
@@ -99,7 +99,7 @@ public class EventHelper {
                         }
                     }
                 }
-                if(Config.getBool("keepExperienceOnPVPDeath")){
+                if(PvPConfig.INSTANCE.getBool("keepExperienceOnPVPDeath")){
                     event.entityPlayer.experience = entityData.getFloat("experienceOnDeath");
                 }
             }
@@ -108,7 +108,7 @@ public class EventHelper {
 
     @SubscribeEvent
     public void loggedInEvent(PlayerLoggedInEvent event) {
-        if(Config.getBool("showMessageOnLogin")){
+        if(PvPConfig.INSTANCE.getBool("showMessageOnLogin")){
             if(!MinecraftServer.getServer().worldServerForDimension(event.player.dimension).isRemote) {
                 if(Users.hasPVPEnabled(event.player.getDisplayName())){
                     event.player.addChatMessage(new ChatComponentText("PVPToggle is enabled on this server. You have PVP currently " + SpecialChars
