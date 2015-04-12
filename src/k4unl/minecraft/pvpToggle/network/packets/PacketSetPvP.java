@@ -11,6 +11,10 @@ public class PacketSetPvP extends AbstractPacket<PacketSetPvP> {
 
     private boolean isPvPOn;
 
+    public PacketSetPvP(){
+        this.isPvPOn = false;
+    }
+
     public PacketSetPvP(boolean pvp){
         this.isPvPOn = pvp;
     }
