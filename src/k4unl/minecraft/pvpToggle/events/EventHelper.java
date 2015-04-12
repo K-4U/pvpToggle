@@ -7,8 +7,11 @@ import cpw.mods.fml.common.gameevent.TickEvent;
 import k4unl.minecraft.k4lib.lib.SpecialChars;
 import k4unl.minecraft.pvpToggle.lib.Users;
 import k4unl.minecraft.pvpToggle.lib.config.PvPConfig;
+import k4unl.minecraft.pvpToggle.network.NetworkHandler;
+import k4unl.minecraft.pvpToggle.network.packets.PacketSetPvP;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -118,6 +121,10 @@ public class EventHelper {
                       .GREEN + "Disabled"));
                 }
             }
+        }
+
+        if(!MinecraftServer.getServer().worldServerForDimension(event.player.dimension).isRemote){
+            NetworkHandler.sendTo(new PacketSetPvP(Users.hasPVPEnabled(event.player.getGameProfile().getName())), (EntityPlayerMP)event.player);
         }
     }
 
