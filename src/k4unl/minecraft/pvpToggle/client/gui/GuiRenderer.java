@@ -33,14 +33,15 @@ public class GuiRenderer extends Gui {
 
         GL11.glEnable(GL11.GL_ALPHA_TEST);
 
-        FMLClientHandler.instance().getClient().getTextureManager().bindTexture(TextureMap.locationItemsTexture);
-
-        IIcon sword = Items.diamond_sword.getIconFromDamage(0);
-
         int x = 1;
         int y = 1;
         int w = 16;
         int h = 16;
+
+
+        FMLClientHandler.instance().getClient().getTextureManager().bindTexture(TextureMap.locationItemsTexture);
+
+        IIcon sword = Items.diamond_sword.getIconFromDamage(0);
 
         Tessellator tessellator = Tessellator.instance;
         tessellator.startDrawingQuads();
@@ -51,6 +52,9 @@ public class GuiRenderer extends Gui {
         tessellator.addVertexWithUV((double)(x + 0), (double)(y + 0), (double)this.zLevel, (double)sword.getMinU(), (double)sword.getMinV());
 
 
+        if(!PvpToggle.instance.isPvPEnabled) {
+            x = x + w;
+        }
         tessellator.addVertexWithUV((double)(x + 0 + 2), (double)(y + h), (double)this.zLevel, (double)sword.getMaxU(), (double)sword.getMaxV());
         tessellator.addVertexWithUV((double)(x + w + 2), (double)(y + h), (double)this.zLevel, (double)sword.getMinU(), (double)sword.getMaxV());
         tessellator.addVertexWithUV((double)(x + w + 2), (double)(y + 0), (double)this.zLevel, (double)sword.getMinU(), (double)sword.getMinV());
@@ -58,25 +62,7 @@ public class GuiRenderer extends Gui {
 
         tessellator.draw();
 
-        if(!PvpToggle.instance.isPvPEnabled) {
-            int color = 0x7FFFFFFF;
-            float f3 = (float)(color >> 24 & 255) / 255.0F;
-            float f = (float)(color >> 16 & 255) / 255.0F;
-            float f1 = (float)(color >> 8 & 255) / 255.0F;
-            float f2 = (float)(color & 255) / 255.0F;
-            GL11.glDisable(GL11.GL_TEXTURE_2D);
-            //OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-            GL11.glColor4f(f, f1, f2, f3);
-            tessellator.startDrawingQuads();
-            tessellator.addVertex((double)x, (double)y+h, 0.0D);
-            tessellator.addVertex((double)w+2+x, (double)y+h, 0.0D);
-            tessellator.addVertex((double)w+2+x, (double)y, 0.0D);
-            tessellator.addVertex((double)x, (double)y, 0.0D);
-            tessellator.draw();
 
-            //drawTexturedModelRectFromIcon(1, 1, sword, 16, 16);
-            //drawRect(0, 0, 20, 20, 0xFF00FF00);
-        }
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glDisable(GL11.GL_BLEND);
         GL11.glDisable(GL11.GL_ALPHA_TEST);
