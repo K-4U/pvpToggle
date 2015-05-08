@@ -36,10 +36,10 @@ public class GuiRenderer extends Gui {
 
         GL11.glEnable(GL11.GL_ALPHA_TEST);
 
-        int x = 1;
-        int y = 1;
-        int w = 16;
-        int h = 16;
+        int x = -3;
+        int y = -3;
+        int w = 32;
+        int h = 32;
 
         Tessellator tessellator = Tessellator.instance;
 
