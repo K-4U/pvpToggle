@@ -8,9 +8,9 @@ public class PvPArea extends Area {
     private boolean announce;
     private boolean forced; //Forced will be the value that PVP has.
 
-    public PvPArea(String name_, Location loc1_, Location loc2_) {
+    public PvPArea(String name_, Location loc1_, Location loc2_, int dimensionId) {
 
-        super(name_, loc1_, loc2_);
+        super(name_, loc1_, loc2_, dimensionId);
     }
 
     public void setAnnounce(boolean newValue){

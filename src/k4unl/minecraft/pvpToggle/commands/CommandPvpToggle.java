@@ -1,14 +1,15 @@
 package k4unl.minecraft.pvpToggle.commands;
 
 import k4unl.minecraft.k4lib.commands.CommandK4OpOnly;
-import k4unl.minecraft.k4lib.lib.Area;
 import k4unl.minecraft.k4lib.lib.Location;
-import k4unl.minecraft.k4lib.lib.config.ModInfo;
 import k4unl.minecraft.k4lib.lib.SpecialChars;
+import k4unl.minecraft.k4lib.lib.config.ModInfo;
 import k4unl.minecraft.pvpToggle.lib.Areas;
 import k4unl.minecraft.pvpToggle.lib.PvPArea;
+import k4unl.minecraft.pvpToggle.lib.Users;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentText;
+import net.minecraftforge.common.DimensionManager;
 
 public class CommandPvpToggle extends CommandK4OpOnly {
 
@@ -21,7 +22,7 @@ public class CommandPvpToggle extends CommandK4OpOnly {
     @Override
     public String getCommandUsage(ICommandSender p_71518_1_) {
 
-        return null;
+        return "";
     }
 
     @Override
@@ -29,6 +30,11 @@ public class CommandPvpToggle extends CommandK4OpOnly {
         if(args.length >= 1){
             if(args[0].toLowerCase().equals("version")) {
                 sender.addChatMessage(new ChatComponentText("PvPToggle version " + ModInfo.VERSION));
+            }else if(args[0].toLowerCase().equals("save")){
+                Users.saveToFile(DimensionManager.getCurrentSaveRootDirectory());
+                Areas.saveToFile(DimensionManager.getCurrentSaveRootDirectory());
+
+                sender.addChatMessage(new ChatComponentText("Areas and Users saved to world dir!"));
             }
         }
         //Area
@@ -51,10 +57,11 @@ public class CommandPvpToggle extends CommandK4OpOnly {
                 //We assume that we have enough arguments.
                 Location loc1 = new Location(args[3], args[4], args[5]);
                 Location loc2 = new Location(args[6], args[7], args[8]);
-                Area newArea = new Area(args[2].toLowerCase(), loc1, loc2);
+                PvPArea newArea = new PvPArea(args[2].toLowerCase(), loc1, loc2, sender.getEntityWorld().provider.dimensionId);
                 sender.addChatMessage(new ChatComponentText("Creating a new area called " + newArea.getName()));
                 sender.addChatMessage(new ChatComponentText(newArea.getLoc1().printLocation()));
                 sender.addChatMessage(new ChatComponentText(newArea.getLoc2().printLocation()));
+                Areas.addToList(newArea);
             }
         }
 
@@ -75,10 +82,29 @@ public class CommandPvpToggle extends CommandK4OpOnly {
                         sender.addChatMessage(new ChatComponentText(SpecialChars.RED + "Valid options: announce or forced"));
                     }
                 }
+                if (args[2].toLowerCase().equals("set")) {
+                    //Args[3] should be the name of the area
+                    PvPArea theArea = Areas.getAreaByName(args[3].toLowerCase());
+                    if(theArea == null){
+                        sender.addChatMessage(new ChatComponentText(SpecialChars.RED + "This area cannot be found!"));
+                        return;
+                    }
+                    if(args[4].toLowerCase().equals("announce")) {
+                        theArea.setAnnounce((args[5].toLowerCase().equals("on") || args[5].toLowerCase().equals("true")));
+                        sender.addChatMessage(new ChatComponentText(theArea.getName() + " announce = " + theArea.getAnnounce()));
+                    }else if(args[4].toLowerCase().equals("forced")){
+                        theArea.setForced((args[5].toLowerCase().equals("on") || args[5].toLowerCase().equals("true")));
+                        sender.addChatMessage(new ChatComponentText(theArea.getName() + " forced = " + theArea.getForced()));
+                    }else{
+                        sender.addChatMessage(new ChatComponentText(SpecialChars.RED + "Valid options: announce or forced"));
+                    }
+                }
             }else{
                 sender.addChatMessage(new ChatComponentText(SpecialChars.RED + "Usage: /pvptoggle area options <name> [get/set] <optionName> "
                   + "[newValue]"));
             }
         }
+
+
     }
 }

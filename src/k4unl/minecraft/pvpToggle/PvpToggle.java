@@ -5,16 +5,19 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.event.*;
+import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import k4unl.minecraft.k4lib.lib.Area;
+import k4unl.minecraft.k4lib.lib.config.ConfigHandler;
 import k4unl.minecraft.pvpToggle.commands.Commands;
 import k4unl.minecraft.pvpToggle.events.EventHelper;
 import k4unl.minecraft.pvpToggle.lib.Areas;
 import k4unl.minecraft.pvpToggle.lib.Log;
 import k4unl.minecraft.pvpToggle.lib.Users;
-import k4unl.minecraft.k4lib.lib.config.ConfigHandler;
 import k4unl.minecraft.pvpToggle.lib.config.ModInfo;
 import k4unl.minecraft.pvpToggle.lib.config.PvPConfig;
 import k4unl.minecraft.pvpToggle.network.NetworkHandler;
@@ -42,6 +45,9 @@ public class PvpToggle {
 
     @SideOnly(Side.CLIENT)
     public boolean isPvPEnabled;
+
+    @SideOnly(Side.CLIENT)
+    public boolean isPvPForced;
 
     private ConfigHandler PvPConfigHandler = new ConfigHandler();
 

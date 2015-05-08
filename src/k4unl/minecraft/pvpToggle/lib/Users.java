@@ -2,8 +2,15 @@ package k4unl.minecraft.pvpToggle.lib;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import k4unl.minecraft.pvpToggle.network.packets.PacketSetPvP;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +34,20 @@ public class Users {
 		return nUser;
 	}
 
+    public static List<User> getUserList(){
+        return userList;
+    }
+
     public static boolean hasPVPEnabled(String username){
-        return getUserByName(username).getPVP();
+        if(getUserByName(username).getIsForced() == Forced.NOTFORCED) {
+            return getUserByName(username).getPVP();
+        }else{
+            return (getUserByName(username).getIsForced() == Forced.FORCEDON);
+        }
+    }
+
+    public static PacketSetPvP createPacket(String username){
+        return new PacketSetPvP(getUserByName(username).getPVP(), getUserByName(username).getIsForced());
     }
 
     public static boolean isInCoolDown(String username){

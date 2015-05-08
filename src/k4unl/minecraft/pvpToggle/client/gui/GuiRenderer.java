@@ -3,15 +3,18 @@ package k4unl.minecraft.pvpToggle.client.gui;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import k4unl.minecraft.pvpToggle.PvpToggle;
+import k4unl.minecraft.pvpToggle.lib.config.ModInfo;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.init.Items;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import org.lwjgl.opengl.GL11;
 
 public class GuiRenderer extends Gui {
+
+    private static ResourceLocation shield = new ResourceLocation(ModInfo.LID, "textures/gui/shield.png");
+    private static ResourceLocation lock = new ResourceLocation(ModInfo.LID, "textures/gui/lock.png");
+    private static ResourceLocation sword = new ResourceLocation(ModInfo.LID, "textures/gui/swords.png");
 
     public void renderTimeOverlay() {
 
@@ -21,7 +24,7 @@ public class GuiRenderer extends Gui {
     public void onRenderGameOverlay(RenderGameOverlayEvent event) {
 
         if ((event.type != RenderGameOverlayEvent.ElementType.EXPERIENCE && event.type != RenderGameOverlayEvent.ElementType.JUMPBAR) ||
-          event.isCancelable()) {
+                event.isCancelable()) {
             return;
         }
 
@@ -38,30 +41,31 @@ public class GuiRenderer extends Gui {
         int w = 16;
         int h = 16;
 
-
-        FMLClientHandler.instance().getClient().getTextureManager().bindTexture(TextureMap.locationItemsTexture);
-
-        IIcon sword = Items.diamond_sword.getIconFromDamage(0);
-
         Tessellator tessellator = Tessellator.instance;
-        tessellator.startDrawingQuads();
 
-        tessellator.addVertexWithUV((double)(x + 0), (double)(y + h), (double)this.zLevel, (double)sword.getMinU(), (double)sword.getMaxV());
-        tessellator.addVertexWithUV((double)(x + w), (double)(y + h), (double)this.zLevel, (double)sword.getMaxU(), (double)sword.getMaxV());
-        tessellator.addVertexWithUV((double)(x + w), (double)(y + 0), (double)this.zLevel, (double)sword.getMaxU(), (double)sword.getMinV());
-        tessellator.addVertexWithUV((double)(x + 0), (double)(y + 0), (double)this.zLevel, (double)sword.getMinU(), (double)sword.getMinV());
-
-
-        if(!PvpToggle.instance.isPvPEnabled) {
-            x = x + w;
+        if(PvpToggle.instance.isPvPEnabled){
+            FMLClientHandler.instance().getClient().getTextureManager().bindTexture(sword);
+        }else{
+            FMLClientHandler.instance().getClient().getTextureManager().bindTexture(shield);
         }
-        tessellator.addVertexWithUV((double)(x + 0 + 2), (double)(y + h), (double)this.zLevel, (double)sword.getMaxU(), (double)sword.getMaxV());
-        tessellator.addVertexWithUV((double)(x + w + 2), (double)(y + h), (double)this.zLevel, (double)sword.getMinU(), (double)sword.getMaxV());
-        tessellator.addVertexWithUV((double)(x + w + 2), (double)(y + 0), (double)this.zLevel, (double)sword.getMinU(), (double)sword.getMinV());
-        tessellator.addVertexWithUV((double)(x + 0 + 2), (double)(y + 0), (double)this.zLevel, (double)sword.getMaxU(), (double)sword.getMinV());
 
+        tessellator.startDrawingQuads();
+        tessellator.addVertexWithUV((double)(x + 0), (double)(y + h), (double)this.zLevel, 0.0, 1.0);
+        tessellator.addVertexWithUV((double)(x + w), (double)(y + h), (double)this.zLevel, 1.0, 1.0);
+        tessellator.addVertexWithUV((double)(x + w), (double)(y + 0), (double)this.zLevel, 1.0, 0.0);
+        tessellator.addVertexWithUV((double)(x + 0), (double)(y + 0), (double)this.zLevel, 0.0, 0.0);
         tessellator.draw();
 
+        if(PvpToggle.instance.isPvPForced){
+            FMLClientHandler.instance().getClient().getTextureManager().bindTexture(lock);
+
+            tessellator.startDrawingQuads();
+            tessellator.addVertexWithUV((double)(x + 0), (double)(y + h), (double)this.zLevel, 0.0, 1.0);
+            tessellator.addVertexWithUV((double)(x + w), (double)(y + h), (double)this.zLevel, 1.0, 1.0);
+            tessellator.addVertexWithUV((double)(x + w), (double)(y + 0), (double)this.zLevel, 1.0, 0.0);
+            tessellator.addVertexWithUV((double)(x + 0), (double)(y + 0), (double)this.zLevel, 0.0, 0.0);
+            tessellator.draw();
+        }
 
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glDisable(GL11.GL_BLEND);

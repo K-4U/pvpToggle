@@ -5,10 +5,14 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import k4unl.minecraft.k4lib.lib.SpecialChars;
+import k4unl.minecraft.pvpToggle.lib.Areas;
+import k4unl.minecraft.pvpToggle.lib.Forced;
+import k4unl.minecraft.pvpToggle.lib.Log;
+import k4unl.minecraft.pvpToggle.lib.PvPArea;
+import k4unl.minecraft.pvpToggle.lib.User;
 import k4unl.minecraft.pvpToggle.lib.Users;
 import k4unl.minecraft.pvpToggle.lib.config.PvPConfig;
 import k4unl.minecraft.pvpToggle.network.NetworkHandler;
-import k4unl.minecraft.pvpToggle.network.packets.PacketSetPvP;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -18,14 +22,19 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 
+import java.util.HashMap;
+import java.util.List;
+
 public class EventHelper {
 
+    private int ticksPassed = 0;
 
 	public static void init(){
 		MinecraftForge.EVENT_BUS.register(new EventHelper());
@@ -124,7 +133,7 @@ public class EventHelper {
         }
 
         if(!MinecraftServer.getServer().worldServerForDimension(event.player.dimension).isRemote){
-            NetworkHandler.sendTo(new PacketSetPvP(Users.hasPVPEnabled(event.player.getGameProfile().getName())), (EntityPlayerMP)event.player);
+            NetworkHandler.sendTo(Users.createPacket(event.player.getGameProfile().getName()), (EntityPlayerMP)event.player);
         }
     }
 
@@ -136,4 +145,69 @@ public class EventHelper {
             }
         }
     }
+
+    private List<PvPArea>                   areas          = Areas.getAreas();
+    private HashMap<String, PvPArea>        players        = new HashMap<String, PvPArea>();
+    private HashMap<String, EntityPlayerMP> playerEntities = new HashMap<String, EntityPlayerMP>();
+
+    @SubscribeEvent
+    public void serverTickEvent(TickEvent.ServerTickEvent event) {
+
+        if (event.phase == TickEvent.Phase.END) {
+            //Only check every so often
+            ticksPassed++;
+            if (ticksPassed == 10) {
+                ticksPassed = 0;
+                //Check all areas
+
+                players = new HashMap<String, PvPArea>();
+                playerEntities = new HashMap<String, EntityPlayerMP>();
+
+                for (World world : MinecraftServer.getServer().worldServers) {
+                    for (EntityPlayerMP player : (List<EntityPlayerMP>) world.playerEntities) {
+                        playerEntities.put(player.getGameProfile().getName(), player);
+                        for (PvPArea area : Areas.getAreas()) {
+                            if (area.contains((int) player.posX, (int) player.posY, (int) player.posZ)) {
+                                players.put(player.getGameProfile().getName(), area);
+                            }
+                        }
+                    }
+                }
+
+                for (User usr : Users.getUserList()) {
+                    if (players.containsKey(usr.getUserName())) {
+                        //Player is in an area
+                        if (!usr.getIsInArea().equals(players.get(usr.getUserName()).getName())) {
+                            //He just entered an area. Let's send packets etc.
+                            Log.info("Player " + usr.getUserName() + " just entered area " + players.get(usr.getUserName()).getName());
+                            usr.setIsInArea(players.get(usr.getUserName()).getName());
+                            usr.setIsForced((players.get(usr.getUserName()).getForced() ? Forced.FORCEDON : Forced.FORCEDOFF));
+
+                            if(players.get(usr.getUserName()).getAnnounce()){
+                                playerEntities.get(usr.getUserName()).addChatMessage( new ChatComponentText("You have entered area " + players.get(usr.getUserName()).getName() + ". Your PvP is forced to " + (players.get(usr.getUserName()).getForced() ? "On" : "Off")));
+                            }
+
+                            NetworkHandler.sendTo(Users.createPacket(usr.getUserName()), playerEntities.get(usr.getUserName()));
+                        }
+                    } else if(playerEntities.containsKey(usr.getUserName())) {
+                        if (!usr.getIsInArea().equals("")) {
+                            //He just left an area. Let's send packets etc.
+                            Log.info("Player " + usr.getUserName() + " just left area " + usr.getIsInArea());
+
+                            if(Areas.getAreaByName(usr.getIsInArea()).getAnnounce()){
+                                playerEntities.get(usr.getUserName()).addChatMessage(new ChatComponentText("You have left area " + usr.getIsInArea() + ". Your PvP is set to " + (usr.getPVP() ? "On" : "Off")));
+                            }
+
+                            usr.setIsInArea("");
+                            usr.setIsForced(Forced.NOTFORCED);
+                            NetworkHandler.sendTo(Users.createPacket(usr.getUserName()), playerEntities.get(usr.getUserName()));
+                        }
+                    } else{
+                        //Player not logged in.
+                    }
+                }
+            }
+        }
+    }
 }
+

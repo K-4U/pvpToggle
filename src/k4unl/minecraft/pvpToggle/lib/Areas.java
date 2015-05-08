@@ -3,7 +3,13 @@ package k4unl.minecraft.pvpToggle.lib;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +32,14 @@ public class Areas {
             }
         }
         return null;
+    }
+
+    public static List<PvPArea> getAreas(){
+        return areaList;
+    }
+
+    public static void addToList(PvPArea toAdd){
+        areaList.add(toAdd);
     }
 
     public static void readFromFile(File dir){
