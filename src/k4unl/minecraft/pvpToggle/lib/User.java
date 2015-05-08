@@ -3,23 +3,25 @@ package k4unl.minecraft.pvpToggle.lib;
 import k4unl.minecraft.pvpToggle.lib.config.PvPConfig;
 
 public class User {
-	private String userName;
-	private boolean hasPVP;
-    private Forced isForced = Forced.NOTFORCED;
+
+    private String  userName;
+    private boolean hasPVP;
+    private PvPForced isPvPForced = PvPForced.NOTFORCED;
     private int coolDown;
     private String isInArea = "";
-	
-	public User(String _username, boolean _hasPVP){
-		userName = _username;
+
+    public User(String _username, boolean _hasPVP) {
+
+        userName = _username;
         hasPVP = _hasPVP;
-        isForced = Forced.NOTFORCED;
+        isPvPForced = PvPForced.NOTFORCED;
         isInArea = "";
 	}
 
 	public User(String _username) {
 		userName = _username;
         hasPVP = false;
-        isForced = Forced.NOTFORCED;
+        isPvPForced = PvPForced.NOTFORCED;
         isInArea = "";
 	}
 
@@ -46,12 +48,12 @@ public class User {
         }
     }
 
-    public void setIsForced(Forced isIt){
-        isForced = isIt;
+    public void setIsPvPForced(PvPForced isIt){
+        isPvPForced = isIt;
     }
 
-    public Forced getIsForced(){
-        return isForced;
+    public PvPForced getIsPvPForced(){
+        return isPvPForced;
     }
 
     public String getIsInArea(){

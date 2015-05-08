@@ -6,7 +6,7 @@ import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import k4unl.minecraft.k4lib.lib.SpecialChars;
 import k4unl.minecraft.pvpToggle.lib.Areas;
-import k4unl.minecraft.pvpToggle.lib.Forced;
+import k4unl.minecraft.pvpToggle.lib.PvPForced;
 import k4unl.minecraft.pvpToggle.lib.Log;
 import k4unl.minecraft.pvpToggle.lib.PvPArea;
 import k4unl.minecraft.pvpToggle.lib.User;
@@ -181,7 +181,7 @@ public class EventHelper {
                             //He just entered an area. Let's send packets etc.
                             Log.info("Player " + usr.getUserName() + " just entered area " + players.get(usr.getUserName()).getName());
                             usr.setIsInArea(players.get(usr.getUserName()).getName());
-                            usr.setIsForced((players.get(usr.getUserName()).getForced() ? Forced.FORCEDON : Forced.FORCEDOFF));
+                            usr.setIsPvPForced((players.get(usr.getUserName()).getForced() ? PvPForced.FORCEDON : PvPForced.FORCEDOFF));
 
                             if(players.get(usr.getUserName()).getAnnounce()){
                                 playerEntities.get(usr.getUserName()).addChatMessage( new ChatComponentText("You have entered area " + players.get(usr.getUserName()).getName() + ". Your PvP is forced to " + (players.get(usr.getUserName()).getForced() ? "On" : "Off")));
@@ -199,7 +199,7 @@ public class EventHelper {
                             }
 
                             usr.setIsInArea("");
-                            usr.setIsForced(Forced.NOTFORCED);
+                            usr.setIsPvPForced(PvPForced.NOTFORCED);
                             NetworkHandler.sendTo(Users.createPacket(usr.getUserName()), playerEntities.get(usr.getUserName()));
                         }
                     } else{

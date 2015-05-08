@@ -3,7 +3,7 @@ package k4unl.minecraft.pvpToggle.network.packets;
 import io.netty.buffer.ByteBuf;
 import k4unl.minecraft.k4lib.network.messages.AbstractPacket;
 import k4unl.minecraft.pvpToggle.PvpToggle;
-import k4unl.minecraft.pvpToggle.lib.Forced;
+import k4unl.minecraft.pvpToggle.lib.PvPForced;
 import net.minecraft.entity.player.EntityPlayer;
 
 
@@ -17,12 +17,12 @@ public class PacketSetPvP extends AbstractPacket<PacketSetPvP> {
         this.isForced = false;
     }
 
-    public PacketSetPvP(boolean pvp, Forced isForced){
-        if(isForced == Forced.NOTFORCED) {
+    public PacketSetPvP(boolean pvp, PvPForced isPvPForced){
+        if(isPvPForced == PvPForced.NOTFORCED) {
             this.isPvPOn = pvp;
             this.isForced = false;
         }else{
-            this.isPvPOn = isForced == Forced.FORCEDON;
+            this.isPvPOn = isPvPForced == PvPForced.FORCEDON;
             this.isForced = true;
         }
     }

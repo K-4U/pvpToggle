@@ -39,15 +39,15 @@ public class Users {
     }
 
     public static boolean hasPVPEnabled(String username){
-        if(getUserByName(username).getIsForced() == Forced.NOTFORCED) {
+        if(getUserByName(username).getIsPvPForced() == PvPForced.NOTFORCED) {
             return getUserByName(username).getPVP();
         }else{
-            return (getUserByName(username).getIsForced() == Forced.FORCEDON);
+            return (getUserByName(username).getIsPvPForced() == PvPForced.FORCEDON);
         }
     }
 
     public static PacketSetPvP createPacket(String username){
-        return new PacketSetPvP(getUserByName(username).getPVP(), getUserByName(username).getIsForced());
+        return new PacketSetPvP(getUserByName(username).getPVP(), getUserByName(username).getIsPvPForced());
     }
 
     public static boolean isInCoolDown(String username){
