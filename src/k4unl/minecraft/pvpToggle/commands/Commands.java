@@ -5,13 +5,10 @@ import cpw.mods.fml.relauncher.Side;
 import net.minecraftforge.client.ClientCommandHandler;
 
 public class Commands {
-
-	
 	public static void init(FMLServerStartingEvent event){
-        if(event.getSide().equals(Side.SERVER)) {
-            event.registerServerCommand(new CommandPVP());
-            event.registerServerCommand(new CommandPvpToggle());
-        }else{
+        event.registerServerCommand(new CommandPVP());
+        event.registerServerCommand(new CommandPvpToggle());
+        if(event.getSide().isClient()) {
             ClientCommandHandler.instance.registerCommand(new CommandPvpToggleClient());
         }
 	}

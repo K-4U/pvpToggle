@@ -47,7 +47,7 @@ public class Users {
     }
 
     public static PacketSetPvP createPacket(String username){
-        return new PacketSetPvP(getUserByName(username).getPVP(), getUserByName(username).getIsPvPForced());
+        return new PacketSetPvP(getUserByName(username).getPVP(), getUserByName(username).getIsPvPForced(), username);
     }
 
     public static boolean isInCoolDown(String username){
