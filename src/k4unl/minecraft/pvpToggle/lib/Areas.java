@@ -34,6 +34,15 @@ public class Areas {
         return null;
     }
 
+    public static void removeAreaByName(String areaName){
+        for (PvPArea a : areaList) {
+            if (a.getName().equals(areaName)) {
+                areaList.remove(a);
+                return;
+            }
+        }
+    }
+
     public static List<PvPArea> getAreas(){
         return areaList;
     }

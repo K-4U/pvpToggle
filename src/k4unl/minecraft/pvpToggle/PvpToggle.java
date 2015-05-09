@@ -110,6 +110,7 @@ public class PvpToggle {
         if (event.getSide().equals(Side.SERVER)) {
             Users.readFromFile(DimensionManager.getCurrentSaveRootDirectory());
             Areas.readFromFile(DimensionManager.getCurrentSaveRootDirectory());
+            readDimensionSettingsFromFile(DimensionManager.getCurrentSaveRootDirectory());
         }
     }
 
@@ -119,6 +120,7 @@ public class PvpToggle {
         if (event.getSide().equals(Side.SERVER)) {
             Users.saveToFile(DimensionManager.getCurrentSaveRootDirectory());
             Areas.saveToFile(DimensionManager.getCurrentSaveRootDirectory());
+            readDimensionSettingsFromFile(DimensionManager.getCurrentSaveRootDirectory());
         }
 	}
 
@@ -165,7 +167,7 @@ public class PvpToggle {
         }
     }
 
-    public void saveToFile(File dir){
+    public void saveDimensionSettingsToFile(File dir){
         if(dir != null){
             Gson gson = new Gson();
             String json = gson.toJson(dimensionSettings);
