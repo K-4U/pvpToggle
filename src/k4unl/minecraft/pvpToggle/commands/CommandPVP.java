@@ -49,14 +49,14 @@ public class CommandPVP extends CommandBase{
                 sender.addChatMessage(new ChatComponentText(SpecialChars.RED + "Warning: PVP is now enabled. Players who also have PVP " +
                   SpecialChars.RED + "enabled " +
                   "can now hurt/kill you! To turn this off, type /pvp off"));
-                NetworkHandler.sendTo(Users.createPacket(sender.getCommandSenderName()), (EntityPlayerMP)sender);
+                NetworkHandler.sendToDimension(Users.createPacket(sender.getCommandSenderName()), ((EntityPlayerMP) sender).dimension);
             }
         }else if(var2[0].equals("off")){
             if(sndr.getPVP()){
                 sndr.setPVP(false);
                 sender.addChatMessage(new ChatComponentText(SpecialChars.GREEN + "PVP is now disabled. Players can no longer" +
                   " hurt/kill " + SpecialChars.GREEN + "you! To turn PVP back on, type /pvp on"));
-                NetworkHandler.sendTo(Users.createPacket(sender.getCommandSenderName()), (EntityPlayerMP)sender);
+                NetworkHandler.sendToDimension(Users.createPacket(sender.getCommandSenderName()), ((EntityPlayerMP)sender).dimension);
             }else{
                 sender.addChatMessage(new ChatComponentText("PVP is already disabled for you"));
             }

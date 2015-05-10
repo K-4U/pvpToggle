@@ -2,7 +2,6 @@ package k4unl.minecraft.pvpToggle;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -13,7 +12,6 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import k4unl.minecraft.k4lib.lib.config.ConfigHandler;
 import k4unl.minecraft.pvpToggle.commands.Commands;
 import k4unl.minecraft.pvpToggle.events.EventHelper;
@@ -36,7 +34,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @Mod(
 	modid = ModInfo.ID,
@@ -57,8 +56,9 @@ public class PvpToggle {
     )
     public static CommonProxy proxy;
 
+
     public static final HashMap<String, Boolean> clientPvPEnabled = new HashMap<String, Boolean>();
-    public static boolean clientPvPForced = false;
+    public static final HashMap<String, Boolean> clientPvPForced = new HashMap<String, Boolean>();
 
     private ConfigHandler PvPConfigHandler = new ConfigHandler();
 
@@ -119,9 +119,7 @@ public class PvpToggle {
             Areas.saveToFile(DimensionManager.getCurrentSaveRootDirectory());
             readDimensionSettingsFromFile(DimensionManager.getCurrentSaveRootDirectory());
         }
-	}
-
-
+    }
 
     public void readDimensionSettingsFromFile(File dir){
         dimensionSettings.clear();

@@ -1,12 +1,9 @@
 package k4unl.minecraft.pvpToggle.network.packets;
 
 import io.netty.buffer.ByteBuf;
-
-import java.util.UUID;
-
 import k4unl.minecraft.k4lib.network.messages.AbstractPacket;
 import k4unl.minecraft.pvpToggle.PvpToggle;
-import k4unl.minecraft.pvpToggle.lib.*;
+import k4unl.minecraft.pvpToggle.lib.PvPForced;
 import net.minecraft.entity.player.EntityPlayer;
 
 
@@ -37,6 +34,7 @@ public class PacketSetPvP extends AbstractPacket<PacketSetPvP> {
     public void fromBytes(ByteBuf buf) {
         this.isPvPOn = buf.readBoolean();
         this.isForced = buf.readBoolean();
+
         user = "";
         int l = buf.readByte();
         for(int i = 0; i < l; i++)
@@ -55,8 +53,15 @@ public class PacketSetPvP extends AbstractPacket<PacketSetPvP> {
     @Override
     public void handleClientSide(PacketSetPvP message, EntityPlayer player) {
 
+        if(PvpToggle.clientPvPEnabled.containsKey(message.user)){
+            PvpToggle.clientPvPEnabled.remove(message.user);
+        }
         PvpToggle.clientPvPEnabled.put(message.user, message.isPvPOn);
-        PvpToggle.clientPvPForced = message.isForced;
+
+        if(PvpToggle.clientPvPForced.containsKey(message.user)){
+            PvpToggle.clientPvPForced.remove(message.user);
+        }
+        PvpToggle.clientPvPForced.put(message.user, message.isForced);
         //Log.info("Hey! We received a packet on the client. It's data is " + message.isPvPOn);
     }
 

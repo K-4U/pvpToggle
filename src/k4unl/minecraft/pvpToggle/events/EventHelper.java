@@ -135,7 +135,7 @@ public class EventHelper {
         }
 
         if(!MinecraftServer.getServer().worldServerForDimension(event.player.dimension).isRemote){
-            NetworkHandler.sendTo(Users.createPacket(event.player.getGameProfile().getName()), (EntityPlayerMP)event.player);
+            NetworkHandler.sendToDimension(Users.createPacket(event.player.getGameProfile().getName()), event.player.dimension);
         }
     }
 
@@ -159,10 +159,14 @@ public class EventHelper {
                 }
             }
             Users.getUserByName(event.player.getGameProfile().getName()).setIsPvPForced(PvpToggle.instance.dimensionSettings.get(event.toDim));
-            NetworkHandler.sendTo(Users.createPacket(event.player.getGameProfile().getName()), (EntityPlayerMP)event.player);
+            NetworkHandler.sendToDimension(Users.createPacket(event.player.getGameProfile().getName()), event.toDim);
         }else{
             Users.getUserByName(event.player.getGameProfile().getName()).setIsPvPForced(PvPForced.NOTFORCED);
-            NetworkHandler.sendTo(Users.createPacket(event.player.getGameProfile().getName()), (EntityPlayerMP)event.player);
+            NetworkHandler.sendToDimension(Users.createPacket(event.player.getGameProfile().getName()), event.toDim);
+        }
+        //And, send him all the packets from all the users in the dimension.
+        for (EntityPlayerMP player : (List<EntityPlayerMP>) MinecraftServer.getServer().worldServerForDimension(event.toDim).playerEntities) {
+            NetworkHandler.sendTo(Users.createPacket(player.getGameProfile().getName()), (EntityPlayerMP) event.player);
         }
     }
 
@@ -209,7 +213,7 @@ public class EventHelper {
                                         usr.getUserName()).getForced() ? "On" : "Off")));
                             }
 
-                            NetworkHandler.sendTo(Users.createPacket(usr.getUserName()), playerEntities.get(usr.getUserName()));
+                            NetworkHandler.sendToDimension(Users.createPacket(usr.getUserName()), playerEntities.get(usr.getUserName()).dimension);
                         }
                     } else if(playerEntities.containsKey(usr.getUserName())) {
                         if (!usr.getIsInArea().equals("")) {
@@ -222,7 +226,7 @@ public class EventHelper {
 
                             usr.setIsInArea("");
                             usr.setIsPvPForced(PvPForced.NOTFORCED);
-                            NetworkHandler.sendTo(Users.createPacket(usr.getUserName()), playerEntities.get(usr.getUserName()));
+                            NetworkHandler.sendToDimension(Users.createPacket(usr.getUserName()), playerEntities.get(usr.getUserName()).dimension);
                         }
                     } else{
                         //Player not logged in.

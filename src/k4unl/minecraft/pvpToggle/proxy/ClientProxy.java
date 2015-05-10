@@ -1,5 +1,6 @@
 package k4unl.minecraft.pvpToggle.proxy;
 
+import k4unl.minecraft.pvpToggle.client.ClientEventHandler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.client.FMLClientHandler;
