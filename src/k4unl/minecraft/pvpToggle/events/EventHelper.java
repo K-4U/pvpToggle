@@ -2,12 +2,12 @@ package k4unl.minecraft.pvpToggle.events;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import k4unl.minecraft.k4lib.lib.SpecialChars;
 import k4unl.minecraft.pvpToggle.PvpToggle;
 import k4unl.minecraft.pvpToggle.lib.Areas;
-import k4unl.minecraft.pvpToggle.lib.Log;
 import k4unl.minecraft.pvpToggle.lib.PvPArea;
 import k4unl.minecraft.pvpToggle.lib.PvPForced;
 import k4unl.minecraft.pvpToggle.lib.User;
@@ -29,7 +29,6 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
 
 import java.util.HashMap;
 import java.util.List;
@@ -155,7 +154,7 @@ public class EventHelper {
                 if(PvPConfig.INSTANCE.getBool("announceDimensionSetting")) {
                     event.player.addChatMessage(
                             new ChatComponentText(
-                                    "This dimension has PvP forced to " + (PvpToggle.instance.dimensionSettings.get(event.toDim) == PvPForced.FORCEDON ? "On" : "Off")));
+                                    "This dimension has PvP forced to " + (PvpToggle.instance.dimensionSettings.get(event.toDim).equals(PvPForced.FORCEDON) ? "On" : "Off")));
                 }
             }
             Users.getUserByName(event.player.getGameProfile().getName()).setIsPvPForced(PvpToggle.instance.dimensionSettings.get(event.toDim));
@@ -204,7 +203,7 @@ public class EventHelper {
                         //Player is in an area
                         if (!usr.getIsInArea().equals(players.get(usr.getUserName()).getName())) {
                             //He just entered an area. Let's send packets etc.
-                            Log.info("Player " + usr.getUserName() + " just entered area " + players.get(usr.getUserName()).getName());
+                            //Log.info("Player " + usr.getUserName() + " just entered area " + players.get(usr.getUserName()).getName());
                             usr.setIsInArea(players.get(usr.getUserName()).getName());
                             usr.setIsPvPForced((players.get(usr.getUserName()).getForced() ? PvPForced.FORCEDON : PvPForced.FORCEDOFF));
 
@@ -218,14 +217,32 @@ public class EventHelper {
                     } else if(playerEntities.containsKey(usr.getUserName())) {
                         if (!usr.getIsInArea().equals("")) {
                             //He just left an area. Let's send packets etc.
-                            Log.info("Player " + usr.getUserName() + " just left area " + usr.getIsInArea());
+                            //Log.info("Player " + usr.getUserName() + " just left area " + usr.getIsInArea());
+
+                            //Now check if the dimension they're in requires a force:
+                            int dimension = playerEntities.get(usr.getUserName()).dimension;
+                            if(PvpToggle.instance.dimensionSettings.containsKey(dimension)){
+                                if(!PvpToggle.instance.dimensionSettings.get(dimension).equals(PvPForced.NOTFORCED)){
+                                    usr.setIsPvPForced(PvpToggle.instance.dimensionSettings.get(dimension));
+                                }else{
+                                    usr.setIsPvPForced(PvPForced.NOTFORCED);
+                                }
+                            }else {
+                                usr.setIsPvPForced(PvPForced.NOTFORCED);
+                            }
 
                             if(Areas.getAreaByName(usr.getIsInArea()).getAnnounce()){
-                                playerEntities.get(usr.getUserName()).addChatMessage(new ChatComponentText("You have left area " + usr.getIsInArea() + ". Your PvP is set to " + (usr.getPVP() ? "On" : "Off")));
+                                if(usr.getIsPvPForced().equals(PvPForced.NOTFORCED)) {
+                                    playerEntities.get(usr.getUserName()).addChatMessage(
+                                            new ChatComponentText("You have left area " + usr.getIsInArea() + ". Your PvP is set to " + (usr.getPVP() ? "On" : "Off")));
+                                }else{
+                                    playerEntities.get(usr.getUserName()).addChatMessage(
+                                            new ChatComponentText("You have left area " + usr.getIsInArea() + ". Your PvP is forced to " + (usr.getIsPvPForced().equals(PvPForced.FORCEDON) ? "On" : "Off")));
+                                }
                             }
 
                             usr.setIsInArea("");
-                            usr.setIsPvPForced(PvPForced.NOTFORCED);
+
                             NetworkHandler.sendToDimension(Users.createPacket(usr.getUserName()), playerEntities.get(usr.getUserName()).dimension);
                         }
                     } else{

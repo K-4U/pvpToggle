@@ -27,7 +27,7 @@ repositories {
 
 
 dependencies {
-    compile "k4unl:k4lib:1.7.10-0.1.34:deobf"
+    compile "k4unl:k4lib:1.7.10-0.1.35:deobf"
 }
 
 project.ext {
@@ -35,7 +35,7 @@ project.ext {
     mcVersion="1.7.10"
 }
 
-version = project.ext.mcVersion + "-0.1." + project.ext.buildNum
+version = project.ext.mcVersion + "-1.0." + project.ext.buildNum
 group= "k4unl.minecraft.pvpToggle" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "pvpToggle"
 

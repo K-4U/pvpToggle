@@ -2,6 +2,7 @@ package k4unl.minecraft.pvpToggle.client;
 
 import k4unl.minecraft.pvpToggle.PvpToggle;
 import k4unl.minecraft.pvpToggle.lib.config.ModInfo;
+import k4unl.minecraft.pvpToggle.lib.config.PvPConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -34,6 +35,9 @@ public class ClientEventHandler
                 event.isCancelable()) {
             return;
         }
+        if(!PvPConfig.INSTANCE.getBool("renderOwnIcon","ui")){
+            return;
+        }
         
         Minecraft mc = Minecraft.getMinecraft();
 
@@ -45,8 +49,8 @@ public class ClientEventHandler
 
         GL11.glEnable(GL11.GL_ALPHA_TEST);
 
-        int x = -3;
-        int y = -3;
+        int x = PvPConfig.INSTANCE.getInt("x", "ui") -3;
+        int y = PvPConfig.INSTANCE.getInt("y", "ui")-3;
         int w = 32;
         int h = 32;
         
@@ -56,8 +60,11 @@ public class ClientEventHandler
 
         Boolean b = PvpToggle.clientPvPEnabled.get(mc.thePlayer.getGameProfile().getName());
         
-        if(b == null || b.booleanValue()) mc.getTextureManager().bindTexture(sword);
-        else mc.getTextureManager().bindTexture(shield);
+        if(b == null || b){
+            mc.getTextureManager().bindTexture(sword);
+        }else {
+            mc.getTextureManager().bindTexture(shield);
+        }
 
         tessellator.startDrawingQuads();
         tessellator.addVertexWithUV((double)(x + 0), (double)(y + h), (double)zLevel, 0.0, 1.0);
@@ -89,8 +96,10 @@ public class ClientEventHandler
     }
     
     @SubscribeEvent
-    public void onPlayerRender(RenderPlayerEvent.Post e)
-    {
+    public void onPlayerRender(RenderPlayerEvent.Post e) {
+        if(!PvPConfig.INSTANCE.getBool("renderOtherIcon", "ui")){
+            return;
+        }
         Minecraft mc = Minecraft.getMinecraft();
         
         float f = (20F - e.entity.getDistanceToEntity(mc.thePlayer)) / 1F;
@@ -120,8 +129,11 @@ public class ClientEventHandler
 
         Boolean b = PvpToggle.clientPvPEnabled.get(e.entityPlayer.getGameProfile().getName());
 
-        if(b == null || b.booleanValue()) mc.getTextureManager().bindTexture(sword);
-        else mc.getTextureManager().bindTexture(shield);
+        if(b == null || b){
+            mc.getTextureManager().bindTexture(sword);
+        }else {
+            mc.getTextureManager().bindTexture(shield);
+        }
 
         GL11.glBegin(GL11.GL_QUADS);
         GL11.glTexCoord2f(0F, 0F); GL11.glVertex2f(-0.5F, -0.5F);

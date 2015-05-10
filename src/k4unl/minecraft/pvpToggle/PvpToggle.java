@@ -68,9 +68,9 @@ public class PvpToggle {
     public void preInit(FMLPreInitializationEvent event) {
 
         Log.init();
+        PvPConfig.INSTANCE.init(event.getSide());
+        PvPConfigHandler.init(PvPConfig.INSTANCE, event.getSuggestedConfigurationFile());
         if (event.getSide().equals(Side.SERVER)) {
-            PvPConfig.INSTANCE.init();
-            PvPConfigHandler.init(PvPConfig.INSTANCE, event.getSuggestedConfigurationFile());
             Areas.init();
             Users.init();
         }
@@ -185,7 +185,6 @@ public class PvpToggle {
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
-
         }
     }
 }
