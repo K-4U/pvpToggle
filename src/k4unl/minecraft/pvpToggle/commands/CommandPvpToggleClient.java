@@ -6,6 +6,7 @@ import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentText;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CommandPvpToggleClient implements ICommand {
@@ -68,8 +69,18 @@ public class CommandPvpToggleClient implements ICommand {
 
     @Override
     public List addTabCompletionOptions(ICommandSender sender, String[] args) {
+        List<String> ret = new ArrayList<String>();
 
-        return null;
+        if(args[0].toLowerCase().equals("own") || args[0].toLowerCase().equals("other")){
+            ret.add("enable");
+            ret.add("disable");
+        }else{
+            ret.add("own");
+            ret.add("other");
+            ret.add("location");
+        }
+
+        return ret;
     }
 
     @Override

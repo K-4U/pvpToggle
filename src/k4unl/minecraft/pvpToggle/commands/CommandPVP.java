@@ -9,6 +9,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentText;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CommandPVP extends CommandBase{
@@ -65,6 +66,9 @@ public class CommandPVP extends CommandBase{
 
 	@Override
 	public List addTabCompletionOptions(ICommandSender cmd, String[] args) {
-		return null;
+		List<String> ret = new ArrayList<String>();
+        ret.add("on");
+        ret.add("off");
+        return ret;
 	}
 }

@@ -13,6 +13,9 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.common.DimensionManager;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CommandPvpToggle extends CommandK4OpOnly {
 
     @Override
@@ -157,7 +160,40 @@ public class CommandPvpToggle extends CommandK4OpOnly {
                   + "[newValue]"));
             }
         }
+    }
 
 
+    @Override
+    public List addTabCompletionOptions(ICommandSender sender, String[] args) {
+
+        List<String> ret = new ArrayList<String>();
+
+        if(args.length == 1){
+            ret.add("area");
+            ret.add("dimension");
+            ret.add("load");
+            ret.add("save");
+            ret.add("version");
+        }else{
+            if(args[0].toLowerCase().equals("area")){
+                if(args.length == 2) {
+                    ret.add("new");
+                    ret.add("delete");
+                    ret.add("option");
+                }else{
+                    if(args[1].toLowerCase().equals("option")){
+                        if(args.length == 3) {
+                            ret.add("get");
+                            ret.add("set");
+                        }else{
+                            ret.add("announce");
+                            ret.add("forced");
+                        }
+                    }
+                }
+            }
+        }
+
+        return ret;
     }
 }
