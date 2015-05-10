@@ -37,7 +37,13 @@ public class CommandPvpToggle extends CommandK4OpOnly {
                 Areas.saveToFile(DimensionManager.getCurrentSaveRootDirectory());
                 PvpToggle.instance.saveDimensionSettingsToFile(DimensionManager.getCurrentSaveRootDirectory());
 
-                sender.addChatMessage(new ChatComponentText("Areas and Users saved to world dir!"));
+                sender.addChatMessage(new ChatComponentText("Areas, users and dimensions saved to world dir!"));
+            }else if(args[0].toLowerCase().equals("load")){
+                Users.readFromFile(DimensionManager.getCurrentSaveRootDirectory());
+                Areas.readFromFile(DimensionManager.getCurrentSaveRootDirectory());
+                PvpToggle.instance.readDimensionSettingsFromFile(DimensionManager.getCurrentSaveRootDirectory());
+
+                sender.addChatMessage(new ChatComponentText("Areas, users and dimensions loaded from world dir!"));
             }
         }
         //Area
