@@ -81,6 +81,7 @@ public class PvpToggle {
     public void load(FMLInitializationEvent event) {
 
         NetworkHandler.init();
+        proxy.init();
 
         if (event.getSide().equals(Side.SERVER)) {
             if (MinecraftServer.getServer().isPVPEnabled()) {

@@ -1,7 +1,9 @@
 package k4unl.minecraft.pvpToggle.proxy;
 
 import k4unl.minecraft.pvpToggle.client.ClientEventHandler;
+import k4unl.minecraft.pvpToggle.commands.CommandPvpToggleClient;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
@@ -11,7 +13,7 @@ import cpw.mods.fml.relauncher.*;
 public class ClientProxy extends CommonProxy {
 	
 	public void init(){
-
+        ClientCommandHandler.instance.registerCommand(new CommandPvpToggleClient());
 	}
 
     @Override
