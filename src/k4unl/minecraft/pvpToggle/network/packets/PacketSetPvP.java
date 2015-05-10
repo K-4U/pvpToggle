@@ -1,9 +1,12 @@
 package k4unl.minecraft.pvpToggle.network.packets;
 
 import io.netty.buffer.ByteBuf;
+
+import java.util.UUID;
+
 import k4unl.minecraft.k4lib.network.messages.AbstractPacket;
 import k4unl.minecraft.pvpToggle.PvpToggle;
-import k4unl.minecraft.pvpToggle.lib.PvPForced;
+import k4unl.minecraft.pvpToggle.lib.*;
 import net.minecraft.entity.player.EntityPlayer;
 
 
@@ -11,13 +14,15 @@ public class PacketSetPvP extends AbstractPacket<PacketSetPvP> {
 
     private boolean isPvPOn;
     private boolean isForced;
+    private String user;
 
     public PacketSetPvP(){
         this.isPvPOn = false;
         this.isForced = false;
+        this.user = "";
     }
 
-    public PacketSetPvP(boolean pvp, PvPForced isPvPForced){
+    public PacketSetPvP(boolean pvp, PvPForced isPvPForced, String username){
         if(isPvPForced == PvPForced.NOTFORCED) {
             this.isPvPOn = pvp;
             this.isForced = false;
@@ -25,25 +30,33 @@ public class PacketSetPvP extends AbstractPacket<PacketSetPvP> {
             this.isPvPOn = isPvPForced == PvPForced.FORCEDON;
             this.isForced = true;
         }
+        this.user = username;
     }
 
     @Override
     public void fromBytes(ByteBuf buf) {
         this.isPvPOn = buf.readBoolean();
         this.isForced = buf.readBoolean();
+        user = "";
+        int l = buf.readByte();
+        for(int i = 0; i < l; i++)
+        	user += buf.readChar();
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
         buf.writeBoolean(this.isPvPOn);
         buf.writeBoolean(this.isForced);
+        buf.writeByte(user.length());
+        for(int i = 0; i < user.length(); i++)
+        	buf.writeChar(user.charAt(i));
     }
 
     @Override
     public void handleClientSide(PacketSetPvP message, EntityPlayer player) {
 
-        PvpToggle.instance.isPvPEnabled = message.isPvPOn;
-        PvpToggle.instance.isPvPForced = message.isForced;
+        PvpToggle.clientPvPEnabled.put(message.user, message.isPvPOn);
+        PvpToggle.clientPvPForced = message.isForced;
         //Log.info("Hey! We received a packet on the client. It's data is " + message.isPvPOn);
     }
 
