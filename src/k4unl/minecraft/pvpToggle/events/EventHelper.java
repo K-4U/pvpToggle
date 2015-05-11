@@ -47,9 +47,7 @@ public class EventHelper {
         if (event.entityLiving instanceof EntityPlayer && event.source != null && event.source.getEntity() != null && event.source.getEntity() instanceof EntityPlayer && !(event.source.getEntity() instanceof FakePlayer)){
             EntityPlayer player = (EntityPlayer) event.source.getEntity();
             if (Users.hasPVPEnabled(((EntityPlayer) event.source.getEntity()).getDisplayName())){
-                if (Users.hasPVPEnabled(((EntityPlayer) event.entityLiving).getDisplayName())){
-                    event.setCanceled(false);
-                }else{
+                if (!Users.hasPVPEnabled(((EntityPlayer) event.entityLiving).getDisplayName())){
                     event.setCanceled(true);
                     player.addChatMessage(new ChatComponentTranslation(SpecialChars.RED + "Both players must have PvP enabled!"));
                 }
