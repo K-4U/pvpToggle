@@ -61,6 +61,7 @@ public class User {
     }
 
     public void setIsInArea(String areaName){
-        isInArea = areaName;
+        if(areaName != null)
+            isInArea = areaName;
     }
 }

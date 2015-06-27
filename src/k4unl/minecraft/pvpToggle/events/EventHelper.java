@@ -7,13 +7,10 @@ import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import k4unl.minecraft.k4lib.lib.SpecialChars;
 import k4unl.minecraft.pvpToggle.PvpToggle;
-import k4unl.minecraft.pvpToggle.lib.Areas;
-import k4unl.minecraft.pvpToggle.lib.PvPArea;
-import k4unl.minecraft.pvpToggle.lib.PvPForced;
-import k4unl.minecraft.pvpToggle.lib.User;
-import k4unl.minecraft.pvpToggle.lib.Users;
+import k4unl.minecraft.pvpToggle.lib.*;
 import k4unl.minecraft.pvpToggle.lib.config.PvPConfig;
 import k4unl.minecraft.pvpToggle.network.NetworkHandler;
+import k4unl.minecraft.pvpToggle.network.packets.PacketPvPList;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -133,6 +130,13 @@ public class EventHelper {
 
         if(!MinecraftServer.getServer().worldServerForDimension(event.player.dimension).isRemote){
             NetworkHandler.sendToDimension(Users.createPacket(event.player.getGameProfile().getName()), event.player.dimension);
+
+            //Send packet for all the users on the server
+            PacketPvPList toSend = new PacketPvPList();
+            for (EntityPlayerMP player : (List<EntityPlayerMP>) MinecraftServer.getServer().worldServerForDimension(event.player.dimension).playerEntities) {
+                Users.addToPvpList(toSend, player.getGameProfile().getName());
+            }
+            NetworkHandler.sendTo(toSend, (EntityPlayerMP) event.player);
         }
     }
 
@@ -161,10 +165,13 @@ public class EventHelper {
             Users.getUserByName(event.player.getGameProfile().getName()).setIsPvPForced(PvPForced.NOTFORCED);
             NetworkHandler.sendToDimension(Users.createPacket(event.player.getGameProfile().getName()), event.toDim);
         }
-        //And, send him all the packets from all the users in the dimension.
+        //And, send him all a packet from all the users in the dimension.
+        PacketPvPList toSend = new PacketPvPList();
         for (EntityPlayerMP player : (List<EntityPlayerMP>) MinecraftServer.getServer().worldServerForDimension(event.toDim).playerEntities) {
-            NetworkHandler.sendTo(Users.createPacket(player.getGameProfile().getName()), (EntityPlayerMP) event.player);
+            Users.addToPvpList(toSend, player.getGameProfile().getName());
         }
+        NetworkHandler.sendTo(toSend, (EntityPlayerMP) event.player);
+
     }
 
 
@@ -213,6 +220,9 @@ public class EventHelper {
                             NetworkHandler.sendToDimension(Users.createPacket(usr.getUserName()), playerEntities.get(usr.getUserName()).dimension);
                         }
                     } else if(playerEntities.containsKey(usr.getUserName())) {
+                        if(usr == null){
+                            Log.error("NULL");
+                        }
                         if (!usr.getIsInArea().equals("")) {
                             //He just left an area. Let's send packets etc.
                             //Log.info("Player " + usr.getUserName() + " just left area " + usr.getIsInArea());

@@ -2,6 +2,7 @@ package k4unl.minecraft.pvpToggle.lib;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import k4unl.minecraft.pvpToggle.network.packets.PacketPvPList;
 import k4unl.minecraft.pvpToggle.network.packets.PacketSetPvP;
 
 import java.io.BufferedReader;
@@ -48,6 +49,10 @@ public class Users {
 
     public static PacketSetPvP createPacket(String username){
         return new PacketSetPvP(getUserByName(username).getPVP(), getUserByName(username).getIsPvPForced(), username);
+    }
+
+    public static void addToPvpList(PacketPvPList list, String username){
+        list.addToList(getUserByName(username).getPVP(), getUserByName(username).getIsPvPForced(), username);
     }
 
     public static boolean isInCoolDown(String username){

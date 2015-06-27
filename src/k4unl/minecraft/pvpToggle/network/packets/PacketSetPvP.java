@@ -62,7 +62,6 @@ public class PacketSetPvP extends AbstractPacket<PacketSetPvP> {
             PvpToggle.clientPvPForced.remove(message.user);
         }
         PvpToggle.clientPvPForced.put(message.user, message.isForced);
-        //Log.info("Hey! We received a packet on the client. It's data is " + message.isPvPOn);
     }
 
     @Override
