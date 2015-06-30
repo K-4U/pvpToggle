@@ -1,16 +1,21 @@
 package k4unl.minecraft.pvpToggle.events;
 
-import k4unl.minecraft.k4lib.lib.SpecialChars;
-import k4unl.minecraft.pvpToggle.lib.Users;
+import k4unl.minecraft.pvpToggle.PvpToggle;
+import k4unl.minecraft.pvpToggle.lib.*;
 import k4unl.minecraft.pvpToggle.lib.config.PvPConfig;
+import k4unl.minecraft.pvpToggle.network.NetworkHandler;
+import k4unl.minecraft.pvpToggle.network.packets.PacketPvPList;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
@@ -18,10 +23,16 @@ import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+
+import java.util.HashMap;
+import java.util.List;
 
 public class EventHelper {
 
+    private int ticksPassed = 0;
 
 	public static void init(){
 		MinecraftForge.EVENT_BUS.register(new EventHelper());
@@ -33,15 +44,13 @@ public class EventHelper {
         if (event.entityLiving instanceof EntityPlayer && event.source != null && event.source.getEntity() != null && event.source.getEntity() instanceof EntityPlayer && !(event.source.getEntity() instanceof FakePlayer)){
             EntityPlayer player = (EntityPlayer) event.source.getEntity();
             if (Users.hasPVPEnabled(((EntityPlayer) event.source.getEntity()).getName())){
-                if (Users.hasPVPEnabled(((EntityPlayer) event.entityLiving).getName())){
-                    event.setCanceled(false);
-                }else{
+                if (!Users.hasPVPEnabled(((EntityPlayer) event.entityLiving).getName())){
                     event.setCanceled(true);
-                    player.addChatMessage(new ChatComponentTranslation(SpecialChars.RED + "Both players must have PvP enabled!"));
+                    player.addChatMessage(new ChatComponentTranslation(EnumChatFormatting.RED + "Both players must have PvP enabled!"));
                 }
             }else{
                 event.setCanceled(true);
-                player.addChatMessage(new ChatComponentTranslation(SpecialChars.RED + "Both players must have PvP enabled!"));
+                player.addChatMessage(new ChatComponentTranslation(EnumChatFormatting.RED + "Both players must have PvP enabled!"));
             }
         }
     }
@@ -106,17 +115,28 @@ public class EventHelper {
     }
 
     @SubscribeEvent
-    public void loggedInEvent(net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent event) {
+    public void loggedInEvent(PlayerLoggedInEvent event) {
         if(PvPConfig.INSTANCE.getBool("showMessageOnLogin")){
             if(!MinecraftServer.getServer().worldServerForDimension(event.player.dimension).isRemote) {
                 if(Users.hasPVPEnabled(event.player.getName())){
-                    event.player.addChatMessage(new ChatComponentText("PVPToggle is enabled on this server. You have PVP currently " + SpecialChars
+                    event.player.addChatMessage(new ChatComponentText("PVPToggle is enabled on this server. You have PVP currently " + EnumChatFormatting
                       .RED + "Enabled"));
                 }else{
-                    event.player.addChatMessage(new ChatComponentText("PVPToggle is enabled on this server. You have PVP currently " + SpecialChars
+                    event.player.addChatMessage(new ChatComponentText("PVPToggle is enabled on this server. You have PVP currently " + EnumChatFormatting
                       .GREEN + "Disabled"));
                 }
             }
+        }
+
+        if(!MinecraftServer.getServer().worldServerForDimension(event.player.dimension).isRemote){
+            NetworkHandler.sendToDimension(Users.createPacket(event.player.getGameProfile().getName()), event.player.dimension);
+
+            //Send packet for all the users on the server
+            PacketPvPList toSend = new PacketPvPList();
+            for (EntityPlayerMP player : (List<EntityPlayerMP>) MinecraftServer.getServer().worldServerForDimension(event.player.dimension).playerEntities) {
+                Users.addToPvpList(toSend, player.getGameProfile().getName());
+            }
+            NetworkHandler.sendTo(toSend, (EntityPlayerMP) event.player);
         }
     }
 
@@ -128,4 +148,117 @@ public class EventHelper {
             }
         }
     }
+
+    @SubscribeEvent
+    public void playerChangedDimension(PlayerChangedDimensionEvent event){
+        if(PvpToggle.instance.dimensionSettings.containsKey(event.toDim)){
+            if(!PvpToggle.instance.dimensionSettings.get(event.toDim).equals(PvPForced.NOTFORCED)){
+                if(PvPConfig.INSTANCE.getBool("announceDimensionSetting")) {
+                    event.player.addChatMessage(
+                            new ChatComponentText(
+                                    "This dimension has PvP forced to " + (PvpToggle.instance.dimensionSettings.get(event.toDim).equals(PvPForced.FORCEDON) ? "On" : "Off")));
+                }
+            }
+            Users.getUserByName(event.player.getGameProfile().getName()).setIsPvPForced(PvpToggle.instance.dimensionSettings.get(event.toDim));
+            NetworkHandler.sendToDimension(Users.createPacket(event.player.getGameProfile().getName()), event.toDim);
+        }else{
+            Users.getUserByName(event.player.getGameProfile().getName()).setIsPvPForced(PvPForced.NOTFORCED);
+            NetworkHandler.sendToDimension(Users.createPacket(event.player.getGameProfile().getName()), event.toDim);
+        }
+        //And, send him all a packet from all the users in the dimension.
+        PacketPvPList toSend = new PacketPvPList();
+        for (EntityPlayerMP player : (List<EntityPlayerMP>) MinecraftServer.getServer().worldServerForDimension(event.toDim).playerEntities) {
+            Users.addToPvpList(toSend, player.getGameProfile().getName());
+        }
+        NetworkHandler.sendTo(toSend, (EntityPlayerMP) event.player);
+
+    }
+
+
+    private List<PvPArea>                   areas          = Areas.getAreas();
+    private HashMap<String, PvPArea> players        = new HashMap<String, PvPArea>();
+    private HashMap<String, EntityPlayerMP> playerEntities = new HashMap<String, EntityPlayerMP>();
+
+    @SubscribeEvent
+    public void serverTickEvent(TickEvent.ServerTickEvent event) {
+
+        if (event.phase == TickEvent.Phase.END) {
+            //Only check every so often
+            ticksPassed++;
+            if (ticksPassed == 10) {
+                ticksPassed = 0;
+                //Check all areas
+
+                players = new HashMap<String, PvPArea>();
+                playerEntities = new HashMap<String, EntityPlayerMP>();
+
+                for (World world : MinecraftServer.getServer().worldServers) {
+                    for (EntityPlayerMP player : (List<EntityPlayerMP>) world.playerEntities) {
+                        playerEntities.put(player.getGameProfile().getName(), player);
+                        for (PvPArea area : Areas.getAreas()) {
+                            if (area.contains((int) player.posX, (int) player.posY, (int) player.posZ)) {
+                                players.put(player.getGameProfile().getName(), area);
+                            }
+                        }
+                    }
+                }
+
+                for (User usr : Users.getUserList()) {
+                    if (players.containsKey(usr.getUserName())) {
+                        //Player is in an area
+                        if (!usr.getIsInArea().equals(players.get(usr.getUserName()).getName())) {
+                            //He just entered an area. Let's send packets etc.
+                            //Log.info("Player " + usr.getUserName() + " just entered area " + players.get(usr.getUserName()).getName());
+                            usr.setIsInArea(players.get(usr.getUserName()).getName());
+                            usr.setIsPvPForced((players.get(usr.getUserName()).getForced() ? PvPForced.FORCEDON : PvPForced.FORCEDOFF));
+
+                            if(players.get(usr.getUserName()).getAnnounce()){
+                                playerEntities.get(usr.getUserName()).addChatMessage( new ChatComponentText("You have entered area " + players.get(usr.getUserName()).getName() + ". Your PvP is forced to " + (players.get(
+                                        usr.getUserName()).getForced() ? "On" : "Off")));
+                            }
+
+                            NetworkHandler.sendToDimension(Users.createPacket(usr.getUserName()), playerEntities.get(usr.getUserName()).dimension);
+                        }
+                    } else if(playerEntities.containsKey(usr.getUserName())) {
+                        if(usr == null){
+                            Log.error("NULL");
+                        }
+                        if (!usr.getIsInArea().equals("")) {
+                            //He just left an area. Let's send packets etc.
+                            //Log.info("Player " + usr.getUserName() + " just left area " + usr.getIsInArea());
+
+                            //Now check if the dimension they're in requires a force:
+                            int dimension = playerEntities.get(usr.getUserName()).dimension;
+                            if(PvpToggle.instance.dimensionSettings.containsKey(dimension)){
+                                if(!PvpToggle.instance.dimensionSettings.get(dimension).equals(PvPForced.NOTFORCED)){
+                                    usr.setIsPvPForced(PvpToggle.instance.dimensionSettings.get(dimension));
+                                }else{
+                                    usr.setIsPvPForced(PvPForced.NOTFORCED);
+                                }
+                            }else {
+                                usr.setIsPvPForced(PvPForced.NOTFORCED);
+                            }
+
+                            if(Areas.getAreaByName(usr.getIsInArea()).getAnnounce()){
+                                if(usr.getIsPvPForced().equals(PvPForced.NOTFORCED)) {
+                                    playerEntities.get(usr.getUserName()).addChatMessage(
+                                            new ChatComponentText("You have left area " + usr.getIsInArea() + ". Your PvP is set to " + (usr.getPVP() ? "On" : "Off")));
+                                }else{
+                                    playerEntities.get(usr.getUserName()).addChatMessage(
+                                            new ChatComponentText("You have left area " + usr.getIsInArea() + ". Your PvP is forced to " + (usr.getIsPvPForced().equals(PvPForced.FORCEDON) ? "On" : "Off")));
+                                }
+                            }
+
+                            usr.setIsInArea("");
+
+                            NetworkHandler.sendToDimension(Users.createPacket(usr.getUserName()), playerEntities.get(usr.getUserName()).dimension);
+                        }
+                    } else{
+                        //Player not logged in.
+                    }
+                }
+            }
+        }
+    }
 }
+

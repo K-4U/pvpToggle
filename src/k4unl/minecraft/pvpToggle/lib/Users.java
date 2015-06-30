@@ -2,8 +2,16 @@ package k4unl.minecraft.pvpToggle.lib;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import k4unl.minecraft.pvpToggle.network.packets.PacketPvPList;
+import k4unl.minecraft.pvpToggle.network.packets.PacketSetPvP;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +35,24 @@ public class Users {
 		return nUser;
 	}
 
+    public static List<User> getUserList(){
+        return userList;
+    }
+
     public static boolean hasPVPEnabled(String username){
-        return getUserByName(username).getPVP();
+        if(getUserByName(username).getIsPvPForced() == PvPForced.NOTFORCED) {
+            return getUserByName(username).getPVP();
+        }else{
+            return (getUserByName(username).getIsPvPForced() == PvPForced.FORCEDON);
+        }
+    }
+
+    public static PacketSetPvP createPacket(String username){
+        return new PacketSetPvP(getUserByName(username).getPVP(), getUserByName(username).getIsPvPForced(), username);
+    }
+
+    public static void addToPvpList(PacketPvPList list, String username){
+        list.addToList(getUserByName(username).getPVP(), getUserByName(username).getIsPvPForced(), username);
     }
 
     public static boolean isInCoolDown(String username){
@@ -46,7 +70,7 @@ public class Users {
 		if(dir != null){
 			Gson gson = new Gson();
 			String p = dir.getAbsolutePath();
-			p += "/pvpToggle.json";
+			p += "/pvptoggle.users.json";
 			File f = new File(p);
 			if(!f.exists()){
 				try {
@@ -88,7 +112,7 @@ public class Users {
 			String json = gson.toJson(userList);
 			//Log.info("Saving: " + json);
 			String p = dir.getAbsolutePath();
-			p += "/pvpToggle.json";
+			p += "/pvptoggle.users.json";
 			File f = new File(p);
 			if(!f.exists()){
 				try {

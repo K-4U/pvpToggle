@@ -1,6 +1,7 @@
 package k4unl.minecraft.pvpToggle.lib;
 
 import k4unl.minecraft.pvpToggle.lib.config.ModInfo;
+import k4unl.minecraft.pvpToggle.lib.config.PvPConfig;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,5 +27,11 @@ public class Log {
 	public static void warning(String message){
 		logger.log(Level.WARN, message);
 	}
-	
+
+
+    public static void debug(String message){
+        if(PvPConfig.INSTANCE.getBool("debug")){
+            logger.log(Level.INFO, message);
+        }
+    }
 }

@@ -15,16 +15,6 @@ buildscript {
     }
 }
 
-// define the properties file
-//ext.configFile = file "build.properties"
-
-//configFile.withReader {
-    // read config. it shall from now on be referenced as simply config or as project.config
-//    def prop = new Properties()
-//    prop.load(it)
-//    ext.config = new ConfigSlurper().parse prop
-//}
-
 apply plugin: 'forge'
 
 
@@ -37,7 +27,7 @@ repositories {
 
 
 dependencies {
-    compile "k4unl:k4lib:1.8-1.0.9:deobf"
+    compile "k4unl:k4lib:1.8-1.0.11:deobf"
 }
 
 project.ext {
@@ -52,7 +42,7 @@ archivesBaseName = "pvpToggle"
 
 
 minecraft {
-    version = "${project.ext.mcVersion}-11.14.1.1332"
+    version = "${project.ext.mcVersion}-11.14.3.1486"
 
     // Tweaked to allow K4's and Lex's folder setup styles
     if (file('../minecraft').exists()) {
@@ -95,7 +85,7 @@ processResources
 
     // replace stuff in mcmod.info, nothing else
     from(sourceSets.main.resources.srcDirs) {
-        //include 'mcmod.info'
+        include 'mcmod.info'
                 
         // replace version and mcversion
         expand 'version':project.version, 'mcversion':project.minecraft.version
