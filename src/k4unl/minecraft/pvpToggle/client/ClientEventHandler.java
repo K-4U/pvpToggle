@@ -1,6 +1,5 @@
 package k4unl.minecraft.pvpToggle.client;
 
-import com.sun.javafx.geom.Vec3d;
 import k4unl.minecraft.pvpToggle.PvpToggle;
 import k4unl.minecraft.pvpToggle.lib.config.ModInfo;
 import k4unl.minecraft.pvpToggle.lib.config.PvPConfig;
@@ -8,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Vec3;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -125,14 +125,14 @@ public class ClientEventHandler
         double x = mc.thePlayer.prevPosX + (mc.thePlayer.posX - mc.thePlayer.prevPosX) * e.partialRenderTick;
         double y = mc.thePlayer.prevPosY + (mc.thePlayer.posY - mc.thePlayer.prevPosY) * e.partialRenderTick;
         double z = mc.thePlayer.prevPosZ + (mc.thePlayer.posZ - mc.thePlayer.prevPosZ) * e.partialRenderTick;
-        Vec3d playerPos = new Vec3d(x, y, z);
+        Vec3 playerPos = new Vec3(x, y, z);
 
         x = e.entityPlayer.prevPosX + (e.entityPlayer.posX - e.entityPlayer.prevPosX) * e.partialRenderTick;
         y = e.entityPlayer.prevPosY + (e.entityPlayer.posY - e.entityPlayer.prevPosY) * e.partialRenderTick;
         z = e.entityPlayer.prevPosZ + (e.entityPlayer.posZ - e.entityPlayer.prevPosZ) * e.partialRenderTick;
-        Vec3d renderPos = new Vec3d(x, y, z);
+        Vec3 renderPos = new Vec3(x, y, z);
 
-        GL11.glTranslated(renderPos.x - playerPos.x, renderPos.y - playerPos.y, renderPos.z - playerPos.z);
+        GL11.glTranslated(renderPos.xCoord - playerPos.xCoord, renderPos.yCoord - playerPos.yCoord, renderPos.zCoord - playerPos.zCoord);
         GL11.glTranslated(0D, 2.5D, 0D);
         GL11.glRotatef(-Minecraft.getMinecraft().getRenderManager().playerViewY, 0F, 1F, 0F);
         GL11.glRotatef(Minecraft.getMinecraft().getRenderManager().playerViewX, 1F, 0F, 0F);
