@@ -5,6 +5,7 @@ import k4unl.minecraft.pvpToggle.lib.config.ModInfo;
 import k4unl.minecraft.pvpToggle.lib.config.PvPConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
@@ -68,22 +69,22 @@ public class ClientEventHandler
             mc.getTextureManager().bindTexture(shield);
         }
 
-        tessellator.getWorldRenderer().startDrawingQuads();
-        tessellator.getWorldRenderer().addVertexWithUV((double) (x + 0), (double) (y + h), (double) zLevel, 0.0, 1.0);
-        tessellator.getWorldRenderer().addVertexWithUV((double) (x + w), (double) (y + h), (double) zLevel, 1.0, 1.0);
-        tessellator.getWorldRenderer().addVertexWithUV((double) (x + w), (double) (y + 0), (double) zLevel, 1.0, 0.0);
-        tessellator.getWorldRenderer().addVertexWithUV((double) (x + 0), (double) (y + 0), (double) zLevel, 0.0, 0.0);
+        tessellator.getWorldRenderer().begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        tessellator.getWorldRenderer().pos((double) (x + 0), (double) (y + h), (double) zLevel).tex(0.0, 1.0).endVertex();
+        tessellator.getWorldRenderer().pos((double) (x + w), (double) (y + h), (double) zLevel).tex(1.0, 1.0).endVertex();
+        tessellator.getWorldRenderer().pos((double) (x + w), (double) (y + 0), (double) zLevel).tex(1.0, 0.0).endVertex();
+        tessellator.getWorldRenderer().pos((double) (x + 0), (double) (y + 0), (double) zLevel).tex(0.0, 0.0).endVertex();
         tessellator.draw();
 
         if(PvpToggle.clientPvPForced.containsKey(mc.thePlayer.getGameProfile().getName())){
             if(PvpToggle.clientPvPForced.get(mc.thePlayer.getGameProfile().getName())) {
                 FMLClientHandler.instance().getClient().getTextureManager().bindTexture(lock);
 
-                tessellator.getWorldRenderer().startDrawingQuads();
-                tessellator.getWorldRenderer().addVertexWithUV((double) (x + 0), (double) (y + h), (double) zLevel, 0.0, 1.0);
-                tessellator.getWorldRenderer().addVertexWithUV((double) (x + w), (double) (y + h), (double) zLevel, 1.0, 1.0);
-                tessellator.getWorldRenderer().addVertexWithUV((double) (x + w), (double) (y + 0), (double) zLevel, 1.0, 0.0);
-                tessellator.getWorldRenderer().addVertexWithUV((double) (x + 0), (double) (y + 0), (double) zLevel, 0.0, 0.0);
+                tessellator.getWorldRenderer().begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+                tessellator.getWorldRenderer().pos((double) (x + 0), (double) (y + h), (double) zLevel).tex(0.0, 1.0).endVertex();
+                tessellator.getWorldRenderer().pos((double) (x + w), (double) (y + h), (double) zLevel).tex(1.0, 1.0).endVertex();
+                tessellator.getWorldRenderer().pos((double) (x + w), (double) (y + 0), (double) zLevel).tex(1.0, 0.0).endVertex();
+                tessellator.getWorldRenderer().pos((double) (x + 0), (double) (y + 0), (double) zLevel).tex(0.0, 0.0).endVertex();
                 tessellator.draw();
             }
         }

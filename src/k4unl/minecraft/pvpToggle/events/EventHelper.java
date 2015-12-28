@@ -21,7 +21,6 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
@@ -36,7 +35,6 @@ public class EventHelper {
 
 	public static void init(){
 		MinecraftForge.EVENT_BUS.register(new EventHelper());
-		FMLCommonHandler.instance().bus().register(new EventHelper());
 	}
 
     @SubscribeEvent
@@ -133,7 +131,7 @@ public class EventHelper {
 
             //Send packet for all the users on the server
             PacketPvPList toSend = new PacketPvPList();
-            for (EntityPlayerMP player : (List<EntityPlayerMP>) MinecraftServer.getServer().worldServerForDimension(event.player.dimension).playerEntities) {
+            for (EntityPlayer player : (List<EntityPlayer>) MinecraftServer.getServer().worldServerForDimension(event.player.dimension).playerEntities) {
                 Users.addToPvpList(toSend, player.getGameProfile().getName());
             }
             NetworkHandler.sendTo(toSend, (EntityPlayerMP) event.player);
@@ -167,7 +165,7 @@ public class EventHelper {
         }
         //And, send him all a packet from all the users in the dimension.
         PacketPvPList toSend = new PacketPvPList();
-        for (EntityPlayerMP player : (List<EntityPlayerMP>) MinecraftServer.getServer().worldServerForDimension(event.toDim).playerEntities) {
+        for (EntityPlayer player : (List<EntityPlayer>) MinecraftServer.getServer().worldServerForDimension(event.toDim).playerEntities) {
             Users.addToPvpList(toSend, player.getGameProfile().getName());
         }
         NetworkHandler.sendTo(toSend, (EntityPlayerMP) event.player);
@@ -177,7 +175,7 @@ public class EventHelper {
 
     private List<PvPArea>                   areas          = Areas.getAreas();
     private HashMap<String, PvPArea> players        = new HashMap<String, PvPArea>();
-    private HashMap<String, EntityPlayerMP> playerEntities = new HashMap<String, EntityPlayerMP>();
+    private HashMap<String, EntityPlayer> playerEntities = new HashMap<String, EntityPlayer>();
 
     @SubscribeEvent
     public void serverTickEvent(TickEvent.ServerTickEvent event) {
@@ -190,10 +188,10 @@ public class EventHelper {
                 //Check all areas
 
                 players = new HashMap<String, PvPArea>();
-                playerEntities = new HashMap<String, EntityPlayerMP>();
+                playerEntities = new HashMap<String, EntityPlayer>();
 
                 for (World world : MinecraftServer.getServer().worldServers) {
-                    for (EntityPlayerMP player : (List<EntityPlayerMP>) world.playerEntities) {
+                    for (EntityPlayer player : (List<EntityPlayer>) world.playerEntities) {
                         playerEntities.put(player.getGameProfile().getName(), player);
                         for (PvPArea area : Areas.getAreas()) {
                             if (area.contains((int) player.posX, (int) player.posY, (int) player.posZ)) {
