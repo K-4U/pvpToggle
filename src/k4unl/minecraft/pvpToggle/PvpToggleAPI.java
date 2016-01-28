@@ -63,7 +63,7 @@ public class PvpToggleAPI implements IPvpToggleApi {
     }
 
     @Override
-    public boolean isInArea(BlockPos pos, int dimensionId) {
+    public boolean isInAnArea(BlockPos pos, int dimensionId) {
 
         for (PvPArea area : Areas.getAreas()) {
             if (area.contains(pos)) {

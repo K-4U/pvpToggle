@@ -64,11 +64,12 @@ public class PvpAPI {
 
 
         /**
-         * Checks if a BlockPos is in a given area.
+         * Checks if a BlockPos is in an area, doesn't tell you which.
+         * Use this method before getAreaName to avoid exceptions.
          * @param pos The blockpos to set
          * @param dimensionId
          */
-        boolean isInArea(BlockPos pos, int dimensionId);
+        boolean isInAnArea(BlockPos pos, int dimensionId);
 
         /**
          * Gets the area areaName for a given blockpos
