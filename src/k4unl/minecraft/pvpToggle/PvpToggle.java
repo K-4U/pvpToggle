@@ -4,11 +4,12 @@ package k4unl.minecraft.pvpToggle;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import k4unl.minecraft.k4lib.lib.config.ConfigHandler;
+import k4unl.minecraft.pvpToggle.api.PvpAPI;
 import k4unl.minecraft.pvpToggle.commands.Commands;
 import k4unl.minecraft.pvpToggle.events.EventHelper;
 import k4unl.minecraft.pvpToggle.lib.Areas;
 import k4unl.minecraft.pvpToggle.lib.Log;
-import k4unl.minecraft.pvpToggle.lib.PvPForced;
+import k4unl.minecraft.pvpToggle.api.PvPStatus;
 import k4unl.minecraft.pvpToggle.lib.Users;
 import k4unl.minecraft.pvpToggle.lib.config.ModInfo;
 import k4unl.minecraft.pvpToggle.lib.config.PvPConfig;
@@ -45,12 +46,12 @@ public class PvpToggle {
     public static CommonProxy proxy;
 
 
-    public static final HashMap<String, Boolean> clientPvPEnabled = new HashMap<String, Boolean>();
-    public static final HashMap<String, Boolean> clientPvPForced = new HashMap<String, Boolean>();
+    //public static final HashMap<String, Boolean> clientPvPEnabled = new HashMap<String, Boolean>();
+    public static final HashMap<String, PvPStatus> clientPvPStatus = new HashMap<String, PvPStatus>();
 
     private ConfigHandler PvPConfigHandler = new ConfigHandler();
 
-    public Map<Integer, PvPForced> dimensionSettings = new HashMap<Integer, PvPForced>();
+    public Map<Integer, PvPStatus> dimensionSettings = new HashMap<Integer, PvPStatus>();
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
@@ -58,6 +59,9 @@ public class PvpToggle {
         Log.init();
         PvPConfig.INSTANCE.init(event.getSide());
         PvPConfigHandler.init(PvPConfig.INSTANCE, event.getSuggestedConfigurationFile());
+
+        PvpAPI.init(new PvpToggleAPI());
+
         if (event.getSide().equals(Side.SERVER)) {
             Areas.init();
             Users.init();
@@ -134,10 +138,10 @@ public class PvpToggle {
                 ipStream.close();
                 bReader.close();
 
-                Type myTypeMap = new TypeToken<Map<Integer,PvPForced>>(){}.getType();
+                Type myTypeMap = new TypeToken<Map<Integer,PvPStatus>>(){}.getType();
                 dimensionSettings = gson.fromJson(json, myTypeMap);
                 if(dimensionSettings== null){
-                    dimensionSettings = new HashMap<Integer, PvPForced>();
+                    dimensionSettings = new HashMap<Integer, PvPStatus>();
                 }
 
                 //Log.info("Read from file: " + json);

@@ -2,6 +2,7 @@ package k4unl.minecraft.pvpToggle.lib;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import k4unl.minecraft.pvpToggle.api.PvPStatus;
 import k4unl.minecraft.pvpToggle.network.packets.PacketPvPList;
 import k4unl.minecraft.pvpToggle.network.packets.PacketSetPvP;
 
@@ -40,19 +41,19 @@ public class Users {
     }
 
     public static boolean hasPVPEnabled(String username){
-        if(getUserByName(username).getIsPvPForced() == PvPForced.NOTFORCED) {
+        if(getUserByName(username).getPvpStatus() == PvPStatus.NOTFORCED) {
             return getUserByName(username).getPVP();
         }else{
-            return (getUserByName(username).getIsPvPForced() == PvPForced.FORCEDON);
+            return (getUserByName(username).getPvpStatus() == PvPStatus.FORCEDON);
         }
     }
 
     public static PacketSetPvP createPacket(String username){
-        return new PacketSetPvP(getUserByName(username).getPVP(), getUserByName(username).getIsPvPForced(), username);
+        return new PacketSetPvP(getUserByName(username).getPvpStatus(), username);
     }
 
     public static void addToPvpList(PacketPvPList list, String username){
-        list.addToList(getUserByName(username).getPVP(), getUserByName(username).getIsPvPForced(), username);
+        list.addToList(getUserByName(username).getPvpStatus(), username);
     }
 
     public static boolean isInCoolDown(String username){

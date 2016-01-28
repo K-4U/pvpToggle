@@ -1,6 +1,7 @@
 package k4unl.minecraft.pvpToggle.client;
 
 import k4unl.minecraft.pvpToggle.PvpToggle;
+import k4unl.minecraft.pvpToggle.api.PvPStatus;
 import k4unl.minecraft.pvpToggle.lib.config.ModInfo;
 import k4unl.minecraft.pvpToggle.lib.config.PvPConfig;
 import net.minecraft.client.Minecraft;
@@ -18,13 +19,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 
 @SideOnly(Side.CLIENT)
-public class ClientEventHandler
-{
-	public static final ClientEventHandler instance = new ClientEventHandler();
-	
+public class ClientEventHandler {
+    public static final ClientEventHandler instance = new ClientEventHandler();
+
     public static final ResourceLocation shield = new ResourceLocation(ModInfo.LID, "textures/gui/shield.png");
-    public static final ResourceLocation lock = new ResourceLocation(ModInfo.LID, "textures/gui/lock.png");
-    public static final ResourceLocation sword = new ResourceLocation(ModInfo.LID, "textures/gui/swords.png");
+    public static final ResourceLocation lock   = new ResourceLocation(ModInfo.LID, "textures/gui/lock.png");
+    public static final ResourceLocation sword  = new ResourceLocation(ModInfo.LID, "textures/gui/swords.png");
 
     public void renderTimeOverlay() {
 
@@ -34,13 +34,13 @@ public class ClientEventHandler
     public void onRenderGameOverlay(RenderGameOverlayEvent event) {
 
         if ((event.type != RenderGameOverlayEvent.ElementType.EXPERIENCE && event.type != RenderGameOverlayEvent.ElementType.JUMPBAR) ||
-                event.isCancelable()) {
+          event.isCancelable()) {
             return;
         }
-        if(!PvPConfig.INSTANCE.getBool("renderOwnIcon","ui")){
+        if (!PvPConfig.INSTANCE.getBool("renderOwnIcon", "ui")) {
             return;
         }
-        
+
         Minecraft mc = Minecraft.getMinecraft();
 
         GL11.glPushMatrix();
@@ -52,20 +52,20 @@ public class ClientEventHandler
 
         //GL11.glEnable(GL11.GL_ALPHA_TEST);
 
-        int x = PvPConfig.INSTANCE.getInt("x", "ui") -3;
-        int y = PvPConfig.INSTANCE.getInt("y", "ui")-3;
+        int x = PvPConfig.INSTANCE.getInt("x", "ui") - 3;
+        int y = PvPConfig.INSTANCE.getInt("y", "ui") - 3;
         int w = 32;
         int h = 32;
-        
+
         float zLevel = 0;
 
         Tessellator tessellator = Tessellator.getInstance();
 
-        Boolean b = PvpToggle.clientPvPEnabled.get(mc.thePlayer.getGameProfile().getName());
-        
-        if(b == null || b){
+        PvPStatus status = PvpToggle.clientPvPStatus.get(mc.thePlayer.getGameProfile().getName());
+
+        if (status == null || status == PvPStatus.ON || status == PvPStatus.FORCEDON) {
             mc.getTextureManager().bindTexture(sword);
-        }else {
+        } else {
             mc.getTextureManager().bindTexture(shield);
         }
 
@@ -76,17 +76,15 @@ public class ClientEventHandler
         tessellator.getWorldRenderer().pos((double) (x + 0), (double) (y + 0), (double) zLevel).tex(0.0, 0.0).endVertex();
         tessellator.draw();
 
-        if(PvpToggle.clientPvPForced.containsKey(mc.thePlayer.getGameProfile().getName())){
-            if(PvpToggle.clientPvPForced.get(mc.thePlayer.getGameProfile().getName())) {
-                FMLClientHandler.instance().getClient().getTextureManager().bindTexture(lock);
+        if (status == PvPStatus.FORCEDON || status == PvPStatus.FORCEDOFF) {
+            FMLClientHandler.instance().getClient().getTextureManager().bindTexture(lock);
 
-                tessellator.getWorldRenderer().begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-                tessellator.getWorldRenderer().pos((double) (x + 0), (double) (y + h), (double) zLevel).tex(0.0, 1.0).endVertex();
-                tessellator.getWorldRenderer().pos((double) (x + w), (double) (y + h), (double) zLevel).tex(1.0, 1.0).endVertex();
-                tessellator.getWorldRenderer().pos((double) (x + w), (double) (y + 0), (double) zLevel).tex(1.0, 0.0).endVertex();
-                tessellator.getWorldRenderer().pos((double) (x + 0), (double) (y + 0), (double) zLevel).tex(0.0, 0.0).endVertex();
-                tessellator.draw();
-            }
+            tessellator.getWorldRenderer().begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+            tessellator.getWorldRenderer().pos((double) (x + 0), (double) (y + h), (double) zLevel).tex(0.0, 1.0).endVertex();
+            tessellator.getWorldRenderer().pos((double) (x + w), (double) (y + h), (double) zLevel).tex(1.0, 1.0).endVertex();
+            tessellator.getWorldRenderer().pos((double) (x + w), (double) (y + 0), (double) zLevel).tex(1.0, 0.0).endVertex();
+            tessellator.getWorldRenderer().pos((double) (x + 0), (double) (y + 0), (double) zLevel).tex(0.0, 0.0).endVertex();
+            tessellator.draw();
         }
 
         //GL11.glEnable(GL11.GL_TEXTURE_2D);
@@ -98,21 +96,22 @@ public class ClientEventHandler
         GL11.glPopMatrix();
 
     }
-    
+
     @SubscribeEvent
     public void onPlayerRender(RenderPlayerEvent.Post e) {
-        if(!PvPConfig.INSTANCE.getBool("renderOtherIcon", "ui")){
+
+        if (!PvPConfig.INSTANCE.getBool("renderOtherIcon", "ui")) {
             return;
         }
         Minecraft mc = Minecraft.getMinecraft();
-        
+
         float f = (20F - e.entity.getDistanceToEntity(mc.thePlayer)) / 1F;
-        
+
         float alpha = MathHelper.clamp_float(f, 0F, 1F);
-        if(alpha == 0F) return;
-        
-        if(e.entityPlayer == mc.thePlayer) return;
-        
+        if (alpha == 0F) return;
+
+        if (e.entityPlayer == mc.thePlayer) return;
+
         GL11.glPushMatrix();
         GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
         GL11.glEnable(GL11.GL_TEXTURE_2D);
@@ -139,38 +138,39 @@ public class ClientEventHandler
         GL11.glRotatef(Minecraft.getMinecraft().getRenderManager().playerViewX, 1F, 0F, 0F);
         GL11.glScalef(.5F, -.5F, -.5F);
 
-        Boolean b = PvpToggle.clientPvPEnabled.get(e.entityPlayer.getGameProfile().getName());
+        PvPStatus status = PvpToggle.clientPvPStatus.get(e.entityPlayer.getGameProfile().getName());
 
-        if(b == null || b){
+        if (status == null || status == PvPStatus.ON || status == PvPStatus.FORCEDON) {
             mc.getTextureManager().bindTexture(sword);
-        }else {
+        } else {
             mc.getTextureManager().bindTexture(shield);
         }
 
         GL11.glBegin(GL11.GL_QUADS);
-        GL11.glTexCoord2f(0F, 0F); GL11.glVertex2f(-0.5F, -0.5F);
-        GL11.glTexCoord2f(1F, 0F); GL11.glVertex2f(0.5F, -0.5F);
-        GL11.glTexCoord2f(1F, 1F); GL11.glVertex2f(0.5F, 0.5F);
-        GL11.glTexCoord2f(0F, 1F); GL11.glVertex2f(-0.5F, 0.5F);
+        GL11.glTexCoord2f(0F, 0F);
+        GL11.glVertex2f(-0.5F, -0.5F);
+        GL11.glTexCoord2f(1F, 0F);
+        GL11.glVertex2f(0.5F, -0.5F);
+        GL11.glTexCoord2f(1F, 1F);
+        GL11.glVertex2f(0.5F, 0.5F);
+        GL11.glTexCoord2f(0F, 1F);
+        GL11.glVertex2f(-0.5F, 0.5F);
         GL11.glEnd();
 
-        if(PvpToggle.clientPvPForced.containsKey(e.entityPlayer.getGameProfile().getName())){
-            if(PvpToggle.clientPvPForced.get(e.entityPlayer.getGameProfile().getName())) {
+        if (status == PvPStatus.FORCEDON || status == PvPStatus.FORCEDOFF) {
+            GL11.glTranslated(0D, 0D, 0.001D);
 
-                GL11.glTranslated(0D, 0D, 0.001D);
-
-                mc.getTextureManager().bindTexture(lock);
-                GL11.glBegin(GL11.GL_QUADS);
-                GL11.glTexCoord2f(0F, 0F);
-                GL11.glVertex2f(-0.5F, -0.5F);
-                GL11.glTexCoord2f(1F, 0F);
-                GL11.glVertex2f(0.5F, -0.5F);
-                GL11.glTexCoord2f(1F, 1F);
-                GL11.glVertex2f(0.5F, 0.5F);
-                GL11.glTexCoord2f(0F, 1F);
-                GL11.glVertex2f(-0.5F, 0.5F);
-                GL11.glEnd();
-            }
+            mc.getTextureManager().bindTexture(lock);
+            GL11.glBegin(GL11.GL_QUADS);
+            GL11.glTexCoord2f(0F, 0F);
+            GL11.glVertex2f(-0.5F, -0.5F);
+            GL11.glTexCoord2f(1F, 0F);
+            GL11.glVertex2f(0.5F, -0.5F);
+            GL11.glTexCoord2f(1F, 1F);
+            GL11.glVertex2f(0.5F, 0.5F);
+            GL11.glTexCoord2f(0F, 1F);
+            GL11.glVertex2f(-0.5F, 0.5F);
+            GL11.glEnd();
         }
 
         GL11.glPopAttrib();

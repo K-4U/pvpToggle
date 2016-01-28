@@ -1,12 +1,13 @@
 package k4unl.minecraft.pvpToggle.lib;
 
+import k4unl.minecraft.pvpToggle.api.PvPStatus;
 import k4unl.minecraft.pvpToggle.lib.config.PvPConfig;
 
 public class User {
 
     private String  userName;
     private boolean hasPVP;
-    private PvPForced isPvPForced = PvPForced.NOTFORCED;
+    private PvPStatus isPvPForced = PvPStatus.NOTFORCED;
     private int coolDown;
     private String isInArea = "";
 
@@ -14,14 +15,14 @@ public class User {
 
         userName = _username;
         hasPVP = _hasPVP;
-        isPvPForced = PvPForced.NOTFORCED;
+        isPvPForced = PvPStatus.NOTFORCED;
         isInArea = "";
 	}
 
 	public User(String _username) {
 		userName = _username;
         hasPVP = false;
-        isPvPForced = PvPForced.NOTFORCED;
+        isPvPForced = PvPStatus.NOTFORCED;
         isInArea = "";
 	}
 
@@ -48,11 +49,11 @@ public class User {
         }
     }
 
-    public void setIsPvPForced(PvPForced isIt){
+    public void setIsPvPForced(PvPStatus isIt){
         isPvPForced = isIt;
     }
 
-    public PvPForced getIsPvPForced(){
+    public PvPStatus getIsPvPForced(){
         return isPvPForced;
     }
 
@@ -63,5 +64,24 @@ public class User {
     public void setIsInArea(String areaName){
         if(areaName != null)
             isInArea = areaName;
+    }
+
+    public PvPStatus getPvpStatus(){
+        if(hasPVP && getIsPvPForced() == PvPStatus.NOTFORCED){
+            return PvPStatus.ON;
+        }else if(!hasPVP && getIsPvPForced() == PvPStatus.NOTFORCED){
+            return PvPStatus.OFF;
+        }else{
+            return getIsPvPForced();
+        }
+    }
+
+    public void setPvpStatus(PvPStatus newStatus) {
+        hasPVP = newStatus == PvPStatus.ON;
+        if(newStatus != PvPStatus.ON && newStatus != PvPStatus.OFF){
+            isPvPForced = newStatus;
+        }else{
+            isPvPForced = PvPStatus.NOTFORCED;
+        }
     }
 }

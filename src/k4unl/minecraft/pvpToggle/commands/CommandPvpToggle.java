@@ -5,7 +5,7 @@ import k4unl.minecraft.k4lib.lib.Location;
 import k4unl.minecraft.pvpToggle.PvpToggle;
 import k4unl.minecraft.pvpToggle.lib.Areas;
 import k4unl.minecraft.pvpToggle.lib.PvPArea;
-import k4unl.minecraft.pvpToggle.lib.PvPForced;
+import k4unl.minecraft.pvpToggle.api.PvPStatus;
 import k4unl.minecraft.pvpToggle.lib.Users;
 import k4unl.minecraft.pvpToggle.lib.config.ModInfo;
 import net.minecraft.command.ICommandSender;
@@ -68,8 +68,8 @@ public class CommandPvpToggle extends CommandK4OpOnly {
         if(args[1].toLowerCase().equals("get")){
             if(args.length >= 3){
                 if(PvpToggle.instance.dimensionSettings.containsKey(Integer.parseInt(args[2]))){
-                    PvPForced f = PvpToggle.instance.dimensionSettings.get(Integer.parseInt(args[2]));
-                    sender.addChatMessage(new ChatComponentText("Dimension " + args[2] + " = " + (f.equals(PvPForced.NOTFORCED) ? "Not forced" : (f.equals(PvPForced.FORCEDON) ? "Forced on" : "Forced off"))));
+                    PvPStatus f = PvpToggle.instance.dimensionSettings.get(Integer.parseInt(args[2]));
+                    sender.addChatMessage(new ChatComponentText("Dimension " + args[2] + " = " + (f.equals(PvPStatus.NOTFORCED) ? "Not forced" : (f.equals(PvPStatus.FORCEDON) ? "Forced on" : "Forced off"))));
                 }else{
                     sender.addChatMessage(new ChatComponentText("Dimension " + args[2] + " = Not forced"));
                 }
@@ -85,9 +85,9 @@ public class CommandPvpToggle extends CommandK4OpOnly {
                     sender.addChatMessage(new ChatComponentText("Please enter -1, 0 or 1 as a value"));
                     return;
                 }
-                PvpToggle.instance.dimensionSettings.put(Integer.parseInt(args[2]), PvPForced.fromInt(v));
-                PvPForced f = PvPForced.fromInt(v);
-                sender.addChatMessage(new ChatComponentText("Dimension " + args[2] + " = " + (f.equals(PvPForced.NOTFORCED) ? "Not forced" : (f.equals(PvPForced.FORCEDON) ? "Forced on" : "Forced off"))));
+                PvpToggle.instance.dimensionSettings.put(Integer.parseInt(args[2]), PvPStatus.fromInt(v));
+                PvPStatus f = PvPStatus.fromInt(v);
+                sender.addChatMessage(new ChatComponentText("Dimension " + args[2] + " = " + (f.equals(PvPStatus.NOTFORCED) ? "Not forced" : (f.equals(PvPStatus.FORCEDON) ? "Forced on" : "Forced off"))));
             }
         }
     }

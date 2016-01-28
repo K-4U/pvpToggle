@@ -23,7 +23,7 @@ repositories {
 
 
 dependencies {
-    compile "k4unl:k4lib:1.8.8-1.0.4:deobf"
+    compile "k4unl:k4lib:1.8.8-1.0.8:deobf"
 }
 
 project.ext {
@@ -43,6 +43,7 @@ minecraft {
     replace "@BUILDNUM@", project.ext.buildNum
 
     mappings = "snapshot_20160117"
+    runDir = "../minecraft/"
 }
 
 // configure the source folders
