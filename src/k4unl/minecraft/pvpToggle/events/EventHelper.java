@@ -4,7 +4,6 @@ import k4unl.minecraft.pvpToggle.PvpToggle;
 import k4unl.minecraft.pvpToggle.api.PvPStatus;
 import k4unl.minecraft.pvpToggle.lib.*;
 import k4unl.minecraft.pvpToggle.lib.config.PvPConfig;
-import k4unl.minecraft.pvpToggle.network.NetworkHandler;
 import k4unl.minecraft.pvpToggle.network.packets.PacketPvPList;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -133,14 +132,14 @@ public class EventHelper {
         }
 
         if (!MinecraftServer.getServer().worldServerForDimension(event.player.dimension).isRemote) {
-            NetworkHandler.sendToDimension(Users.createPacket(event.player.getGameProfile().getName()), event.player.dimension);
+            PvpToggle.networkHandler.sendToDimension(Users.createPacket(event.player.getGameProfile().getName()), event.player.dimension);
 
             //Send packet for all the users on the server
             PacketPvPList toSend = new PacketPvPList();
             for (EntityPlayer player : (List<EntityPlayer>) MinecraftServer.getServer().worldServerForDimension(event.player.dimension).playerEntities) {
                 Users.addToPvpList(toSend, player.getGameProfile().getName());
             }
-            NetworkHandler.sendTo(toSend, (EntityPlayerMP) event.player);
+            PvpToggle.networkHandler.sendTo(toSend, (EntityPlayerMP) event.player);
         }
     }
 
@@ -166,18 +165,18 @@ public class EventHelper {
                 }
             }
             Users.getUserByName(event.player.getGameProfile().getName()).setIsPvPForced(PvpToggle.instance.dimensionSettings.get(event.toDim));
-            NetworkHandler.sendToDimension(Users.createPacket(event.player.getGameProfile().getName()), event.toDim);
+            PvpToggle.networkHandler.sendToDimension(Users.createPacket(event.player.getGameProfile().getName()), event.toDim);
         } else {
             //Remember his old setting.
             Users.getUserByName(event.player.getGameProfile().getName()).setIsPvPForced(PvPStatus.OFF);
-            NetworkHandler.sendToDimension(Users.createPacket(event.player.getGameProfile().getName()), event.toDim);
+            PvpToggle.networkHandler.sendToDimension(Users.createPacket(event.player.getGameProfile().getName()), event.toDim);
         }
         //And, send him all a packet from all the users in the dimension.
         PacketPvPList toSend = new PacketPvPList();
         for (EntityPlayer player : (List<EntityPlayer>) MinecraftServer.getServer().worldServerForDimension(event.toDim).playerEntities) {
             Users.addToPvpList(toSend, player.getGameProfile().getName());
         }
-        NetworkHandler.sendTo(toSend, (EntityPlayerMP) event.player);
+        PvpToggle.networkHandler.sendTo(toSend, (EntityPlayerMP) event.player);
 
     }
 
@@ -223,7 +222,7 @@ public class EventHelper {
                                   usr.getUserName()).getForced() ? "On" : "Off")));
                             }
 
-                            NetworkHandler.sendToDimension(Users.createPacket(usr.getUserName()), playerEntities.get(usr.getUserName()).dimension);
+                            PvpToggle.networkHandler.sendToDimension(Users.createPacket(usr.getUserName()), playerEntities.get(usr.getUserName()).dimension);
                         }
                     } else if (playerEntities.containsKey(usr.getUserName())) {
                         if (usr == null) {
@@ -257,7 +256,7 @@ public class EventHelper {
 
                             usr.setIsInArea("");
 
-                            NetworkHandler.sendToDimension(Users.createPacket(usr.getUserName()), playerEntities.get(usr.getUserName()).dimension);
+                            PvpToggle.networkHandler.sendToDimension(Users.createPacket(usr.getUserName()), playerEntities.get(usr.getUserName()).dimension);
                         }
                     } else {
                         //Player not logged in.

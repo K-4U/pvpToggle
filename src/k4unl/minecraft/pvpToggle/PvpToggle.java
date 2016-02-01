@@ -45,6 +45,7 @@ public class PvpToggle {
     )
     public static CommonProxy proxy;
 
+    public static NetworkHandler networkHandler = new NetworkHandler();
 
     //public static final HashMap<String, Boolean> clientPvPEnabled = new HashMap<String, Boolean>();
     public static final HashMap<String, PvPStatus> clientPvPStatus = new HashMap<String, PvPStatus>();
@@ -72,7 +73,7 @@ public class PvpToggle {
     @Mod.EventHandler
     public void load(FMLInitializationEvent event) {
 
-        NetworkHandler.init();
+        networkHandler.init();
         proxy.init();
 
         if (event.getSide().equals(Side.SERVER)) {

@@ -1,9 +1,9 @@
 package k4unl.minecraft.pvpToggle.commands;
 
 import k4unl.minecraft.k4lib.commands.CommandK4Base;
+import k4unl.minecraft.pvpToggle.PvpToggle;
 import k4unl.minecraft.pvpToggle.lib.User;
 import k4unl.minecraft.pvpToggle.lib.Users;
-import k4unl.minecraft.pvpToggle.network.NetworkHandler;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.BlockPos;
@@ -47,14 +47,14 @@ public class CommandPVP extends CommandK4Base{
                 sender.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "Warning: PVP is now enabled. Players who also have PVP " +
                   EnumChatFormatting.RED + "enabled " +
                   "can now hurt/kill you! To turn this off, type /pvp off"));
-                NetworkHandler.sendToDimension(Users.createPacket(sender.getName()), ((EntityPlayerMP) sender).dimension);
+                PvpToggle.networkHandler.sendToDimension(Users.createPacket(sender.getName()), ((EntityPlayerMP) sender).dimension);
             }
         }else if(var2[0].equals("off")){
             if(sndr.getPVP()){
                 sndr.setPVP(false);
                 sender.addChatMessage(new ChatComponentText(EnumChatFormatting.GREEN + "PVP is now disabled. Players can no longer" +
                   " hurt/kill " + EnumChatFormatting.GREEN + "you! To turn PVP back on, type /pvp on"));
-                NetworkHandler.sendToDimension(Users.createPacket(sender.getName()), ((EntityPlayerMP)sender).dimension);
+                PvpToggle.networkHandler.sendToDimension(Users.createPacket(sender.getName()), ((EntityPlayerMP)sender).dimension);
             }else{
                 sender.addChatMessage(new ChatComponentText("PVP is already disabled for you"));
             }
