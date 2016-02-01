@@ -1,6 +1,6 @@
 package k4unl.minecraft.pvpToggle.network;
 
-import k4unl.minecraft.k4lib.lib.config.ModInfo;
+import k4unl.minecraft.pvpToggle.lib.config.ModInfo;
 import k4unl.minecraft.pvpToggle.network.packets.PacketPvPList;
 import k4unl.minecraft.pvpToggle.network.packets.PacketSetPvP;
 import net.minecraftforge.fml.relauncher.Side;
