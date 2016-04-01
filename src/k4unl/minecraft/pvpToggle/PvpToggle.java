@@ -3,19 +3,19 @@ package k4unl.minecraft.pvpToggle;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import k4unl.minecraft.k4lib.lib.Functions;
 import k4unl.minecraft.k4lib.lib.config.ConfigHandler;
+import k4unl.minecraft.pvpToggle.api.PvPStatus;
 import k4unl.minecraft.pvpToggle.api.PvpAPI;
 import k4unl.minecraft.pvpToggle.commands.Commands;
 import k4unl.minecraft.pvpToggle.events.EventHelper;
 import k4unl.minecraft.pvpToggle.lib.Areas;
 import k4unl.minecraft.pvpToggle.lib.Log;
-import k4unl.minecraft.pvpToggle.api.PvPStatus;
 import k4unl.minecraft.pvpToggle.lib.Users;
 import k4unl.minecraft.pvpToggle.lib.config.ModInfo;
 import k4unl.minecraft.pvpToggle.lib.config.PvPConfig;
 import k4unl.minecraft.pvpToggle.network.NetworkHandler;
 import k4unl.minecraft.pvpToggle.proxy.CommonProxy;
-import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -47,12 +47,11 @@ public class PvpToggle {
 
     public static NetworkHandler networkHandler = new NetworkHandler();
 
-    //public static final HashMap<String, Boolean> clientPvPEnabled = new HashMap<String, Boolean>();
-    public static final HashMap<String, PvPStatus> clientPvPStatus = new HashMap<String, PvPStatus>();
+    public static final HashMap<String, PvPStatus> clientPvPStatus = new HashMap<>();
 
     private ConfigHandler PvPConfigHandler = new ConfigHandler();
 
-    public Map<Integer, PvPStatus> dimensionSettings = new HashMap<Integer, PvPStatus>();
+    public Map<Integer, PvPStatus> dimensionSettings = new HashMap<>();
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
@@ -77,8 +76,10 @@ public class PvpToggle {
         proxy.init();
 
         if (event.getSide().equals(Side.SERVER)) {
-            if (MinecraftServer.getServer().isPVPEnabled()) {
+            if (Functions.getServer().isPVPEnabled()) {
                 EventHelper.init();
+            }else{
+                Log.error("PVP is not enabled on your server, PVPToggle will NOT function!");
             }
         }
     }

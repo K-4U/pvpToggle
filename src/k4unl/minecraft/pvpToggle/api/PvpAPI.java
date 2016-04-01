@@ -3,7 +3,7 @@ package k4unl.minecraft.pvpToggle.api;
 import k4unl.minecraft.pvpToggle.api.exceptions.*;
 import k4unl.minecraft.pvpToggle.lib.Log;
 import k4unl.minecraft.pvpToggle.lib.config.ModInfo;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.Loader;
 
 import java.util.List;

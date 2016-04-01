@@ -7,9 +7,9 @@ import k4unl.minecraft.pvpToggle.lib.config.PvPConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -33,7 +33,7 @@ public class ClientEventHandler {
     @SubscribeEvent
     public void onRenderGameOverlay(RenderGameOverlayEvent event) {
 
-        if ((event.type != RenderGameOverlayEvent.ElementType.EXPERIENCE && event.type != RenderGameOverlayEvent.ElementType.JUMPBAR) ||
+        if ((event.getType() != RenderGameOverlayEvent.ElementType.EXPERIENCE && event.getType() != RenderGameOverlayEvent.ElementType.JUMPBAR) ||
           event.isCancelable()) {
             return;
         }
@@ -69,21 +69,21 @@ public class ClientEventHandler {
             mc.getTextureManager().bindTexture(shield);
         }
 
-        tessellator.getWorldRenderer().begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-        tessellator.getWorldRenderer().pos((double) (x + 0), (double) (y + h), (double) zLevel).tex(0.0, 1.0).endVertex();
-        tessellator.getWorldRenderer().pos((double) (x + w), (double) (y + h), (double) zLevel).tex(1.0, 1.0).endVertex();
-        tessellator.getWorldRenderer().pos((double) (x + w), (double) (y + 0), (double) zLevel).tex(1.0, 0.0).endVertex();
-        tessellator.getWorldRenderer().pos((double) (x + 0), (double) (y + 0), (double) zLevel).tex(0.0, 0.0).endVertex();
+        tessellator.getBuffer().begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        tessellator.getBuffer().pos((double) (x + 0), (double) (y + h), (double) zLevel).tex(0.0, 1.0).endVertex();
+        tessellator.getBuffer().pos((double) (x + w), (double) (y + h), (double) zLevel).tex(1.0, 1.0).endVertex();
+        tessellator.getBuffer().pos((double) (x + w), (double) (y + 0), (double) zLevel).tex(1.0, 0.0).endVertex();
+        tessellator.getBuffer().pos((double) (x + 0), (double) (y + 0), (double) zLevel).tex(0.0, 0.0).endVertex();
         tessellator.draw();
 
         if (status == PvPStatus.FORCEDON || status == PvPStatus.FORCEDOFF) {
             FMLClientHandler.instance().getClient().getTextureManager().bindTexture(lock);
 
-            tessellator.getWorldRenderer().begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-            tessellator.getWorldRenderer().pos((double) (x + 0), (double) (y + h), (double) zLevel).tex(0.0, 1.0).endVertex();
-            tessellator.getWorldRenderer().pos((double) (x + w), (double) (y + h), (double) zLevel).tex(1.0, 1.0).endVertex();
-            tessellator.getWorldRenderer().pos((double) (x + w), (double) (y + 0), (double) zLevel).tex(1.0, 0.0).endVertex();
-            tessellator.getWorldRenderer().pos((double) (x + 0), (double) (y + 0), (double) zLevel).tex(0.0, 0.0).endVertex();
+            tessellator.getBuffer().begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+            tessellator.getBuffer().pos((double) (x + 0), (double) (y + h), (double) zLevel).tex(0.0, 1.0).endVertex();
+            tessellator.getBuffer().pos((double) (x + w), (double) (y + h), (double) zLevel).tex(1.0, 1.0).endVertex();
+            tessellator.getBuffer().pos((double) (x + w), (double) (y + 0), (double) zLevel).tex(1.0, 0.0).endVertex();
+            tessellator.getBuffer().pos((double) (x + 0), (double) (y + 0), (double) zLevel).tex(0.0, 0.0).endVertex();
             tessellator.draw();
         }
 
@@ -105,12 +105,12 @@ public class ClientEventHandler {
         }
         Minecraft mc = Minecraft.getMinecraft();
 
-        float f = (20F - e.entity.getDistanceToEntity(mc.thePlayer)) / 1F;
+        float f = (20F - e.getEntity().getDistanceToEntity(mc.thePlayer)) / 1F;
 
         float alpha = MathHelper.clamp_float(f, 0F, 1F);
         if (alpha == 0F) return;
 
-        if (e.entityPlayer == mc.thePlayer) return;
+        if (e.getEntityPlayer() == mc.thePlayer) return;
 
         GL11.glPushMatrix();
         GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
@@ -122,15 +122,15 @@ public class ClientEventHandler {
         GL11.glColor4f(1F, 1F, 1F, alpha);
         //RenderPlayer
 
-        double x = mc.thePlayer.prevPosX + (mc.thePlayer.posX - mc.thePlayer.prevPosX) * e.partialRenderTick;
-        double y = mc.thePlayer.prevPosY + (mc.thePlayer.posY - mc.thePlayer.prevPosY) * e.partialRenderTick;
-        double z = mc.thePlayer.prevPosZ + (mc.thePlayer.posZ - mc.thePlayer.prevPosZ) * e.partialRenderTick;
-        Vec3 playerPos = new Vec3(x, y, z);
+        double x = mc.thePlayer.prevPosX + (mc.thePlayer.posX - mc.thePlayer.prevPosX) * e.getPartialRenderTick();
+        double y = mc.thePlayer.prevPosY + (mc.thePlayer.posY - mc.thePlayer.prevPosY) * e.getPartialRenderTick();
+        double z = mc.thePlayer.prevPosZ + (mc.thePlayer.posZ - mc.thePlayer.prevPosZ) * e.getPartialRenderTick();
+        Vec3d playerPos = new Vec3d(x, y, z);
 
-        x = e.entityPlayer.prevPosX + (e.entityPlayer.posX - e.entityPlayer.prevPosX) * e.partialRenderTick;
-        y = e.entityPlayer.prevPosY + (e.entityPlayer.posY - e.entityPlayer.prevPosY) * e.partialRenderTick;
-        z = e.entityPlayer.prevPosZ + (e.entityPlayer.posZ - e.entityPlayer.prevPosZ) * e.partialRenderTick;
-        Vec3 renderPos = new Vec3(x, y, z);
+        x = e.getEntityPlayer().prevPosX + (e.getEntityPlayer().posX - e.getEntityPlayer().prevPosX) * e.getPartialRenderTick();
+        y = e.getEntityPlayer().prevPosY + (e.getEntityPlayer().posY - e.getEntityPlayer().prevPosY) * e.getPartialRenderTick();
+        z = e.getEntityPlayer().prevPosZ + (e.getEntityPlayer().posZ - e.getEntityPlayer().prevPosZ) * e.getPartialRenderTick();
+        Vec3d renderPos = new Vec3d(x, y, z);
 
         GL11.glTranslated(renderPos.xCoord - playerPos.xCoord, renderPos.yCoord - playerPos.yCoord, renderPos.zCoord - playerPos.zCoord);
         GL11.glTranslated(0D, 2.5D, 0D);
@@ -138,7 +138,7 @@ public class ClientEventHandler {
         GL11.glRotatef(Minecraft.getMinecraft().getRenderManager().playerViewX, 1F, 0F, 0F);
         GL11.glScalef(.5F, -.5F, -.5F);
 
-        PvPStatus status = PvpToggle.clientPvPStatus.get(e.entityPlayer.getGameProfile().getName());
+        PvPStatus status = PvpToggle.clientPvPStatus.get(e.getEntityPlayer().getGameProfile().getName());
 
         if (status == null || status == PvPStatus.ON || status == PvPStatus.FORCEDON) {
             mc.getTextureManager().bindTexture(sword);

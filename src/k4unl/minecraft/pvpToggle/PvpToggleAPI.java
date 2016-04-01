@@ -8,7 +8,7 @@ import k4unl.minecraft.pvpToggle.lib.Areas;
 import k4unl.minecraft.pvpToggle.lib.PvPArea;
 import k4unl.minecraft.pvpToggle.lib.User;
 import k4unl.minecraft.pvpToggle.lib.Users;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
 import java.util.List;

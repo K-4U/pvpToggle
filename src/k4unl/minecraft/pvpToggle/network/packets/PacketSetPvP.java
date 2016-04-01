@@ -4,46 +4,52 @@ import io.netty.buffer.ByteBuf;
 import k4unl.minecraft.k4lib.network.messages.AbstractPacket;
 import k4unl.minecraft.pvpToggle.PvpToggle;
 import k4unl.minecraft.pvpToggle.api.PvPStatus;
+import k4unl.minecraft.pvpToggle.lib.Log;
 import net.minecraft.entity.player.EntityPlayer;
 
 
 public class PacketSetPvP extends AbstractPacket<PacketSetPvP> {
 
     private PvPStatus pvpStatus;
-    private String user;
+    private String    user;
 
-    public PacketSetPvP(){
+    public PacketSetPvP() {
+
         pvpStatus = PvPStatus.NOTFORCED;
         this.user = "";
     }
 
-    public PacketSetPvP(PvPStatus newStatus, String username){
+    public PacketSetPvP(PvPStatus newStatus, String username) {
+
         pvpStatus = newStatus;
         this.user = username;
     }
 
     @Override
     public void fromBytes(ByteBuf buf) {
+
         this.pvpStatus = PvPStatus.fromInt(buf.readInt());
 
         user = "";
         int l = buf.readByte();
-        for(int i = 0; i < l; i++)
-        	user += buf.readChar();
+        for (int i = 0; i < l; i++)
+            user += buf.readChar();
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
-        buf.writeInt(pvpStatus.ordinal());
+
+        buf.writeInt(pvpStatus.toInt());
         buf.writeByte(user.length());
-        for(int i = 0; i < user.length(); i++)
-        	buf.writeChar(user.charAt(i));
+        for (int i = 0; i < user.length(); i++)
+            buf.writeChar(user.charAt(i));
     }
 
     @Override
     public void handleClientSide(PacketSetPvP message, EntityPlayer player) {
 
-        if(PvpToggle.clientPvPStatus.containsKey(message.user)){
+        Log.info("Received msg" + message.user + "=" + message.pvpStatus);
+        if (PvpToggle.clientPvPStatus.containsKey(message.user)) {
             PvpToggle.clientPvPStatus.remove(message.user);
         }
         PvpToggle.clientPvPStatus.put(message.user, message.pvpStatus);
