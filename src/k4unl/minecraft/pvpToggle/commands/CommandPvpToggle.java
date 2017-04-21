@@ -22,13 +22,13 @@ import java.util.List;
 public class CommandPvpToggle extends CommandK4OpOnly {
 
     @Override
-    public String getCommandName() {
+    public String getName() {
 
         return "pvptoggle";
     }
 
     @Override
-    public String getCommandUsage(ICommandSender p_71518_1_) {
+    public String getUsage(ICommandSender p_71518_1_) {
 
         return "pvptoggle version|save|load|area|dimension";
     }
@@ -38,19 +38,19 @@ public class CommandPvpToggle extends CommandK4OpOnly {
 
         if (args.length >= 1) {
             if (args[0].toLowerCase().equals("version")) {
-                sender.addChatMessage(new TextComponentString("PvPToggle version " + ModInfo.VERSION));
+                sender.sendMessage(new TextComponentString("PvPToggle version " + ModInfo.VERSION));
             } else if (args[0].toLowerCase().equals("save")) {
                 Users.saveToFile(DimensionManager.getCurrentSaveRootDirectory());
                 Areas.saveToFile(DimensionManager.getCurrentSaveRootDirectory());
                 PvpToggle.instance.saveDimensionSettingsToFile(DimensionManager.getCurrentSaveRootDirectory());
 
-                sender.addChatMessage(new TextComponentString("Areas, users and dimensions saved to world dir!"));
+                sender.sendMessage(new TextComponentString("Areas, users and dimensions saved to world dir!"));
             } else if (args[0].toLowerCase().equals("load")) {
                 Users.readFromFile(DimensionManager.getCurrentSaveRootDirectory());
                 Areas.readFromFile(DimensionManager.getCurrentSaveRootDirectory());
                 PvpToggle.instance.readDimensionSettingsFromFile(DimensionManager.getCurrentSaveRootDirectory());
 
-                sender.addChatMessage(new TextComponentString("Areas, users and dimensions loaded from world dir!"));
+                sender.sendMessage(new TextComponentString("Areas, users and dimensions loaded from world dir!"));
             }
         }
         //Area
@@ -72,9 +72,9 @@ public class CommandPvpToggle extends CommandK4OpOnly {
             if (args.length >= 3) {
                 if (PvpToggle.instance.dimensionSettings.containsKey(Integer.parseInt(args[2]))) {
                     PvPStatus f = PvpToggle.instance.dimensionSettings.get(Integer.parseInt(args[2]));
-                    sender.addChatMessage(new TextComponentString("Dimension " + args[2] + " = " + (f.equals(PvPStatus.NOTFORCED) ? "Not forced" : (f.equals(PvPStatus.FORCEDON) ? "Forced on" : "Forced off"))));
+                    sender.sendMessage(new TextComponentString("Dimension " + args[2] + " = " + (f.equals(PvPStatus.NOTFORCED) ? "Not forced" : (f.equals(PvPStatus.FORCEDON) ? "Forced on" : "Forced off"))));
                 } else {
-                    sender.addChatMessage(new TextComponentString("Dimension " + args[2] + " = Not forced"));
+                    sender.sendMessage(new TextComponentString("Dimension " + args[2] + " = Not forced"));
                 }
             }
         } else {
@@ -85,12 +85,12 @@ public class CommandPvpToggle extends CommandK4OpOnly {
                 int v = Integer.parseInt(args[3]);
 
                 if (v < -1 || v > 1) {
-                    sender.addChatMessage(new TextComponentString("Please enter -1, 0 or 1 as a value"));
+                    sender.sendMessage(new TextComponentString("Please enter -1, 0 or 1 as a value"));
                     return;
                 }
                 PvpToggle.instance.dimensionSettings.put(Integer.parseInt(args[2]), PvPStatus.fromInt(v));
                 PvPStatus f = PvPStatus.fromInt(v);
-                sender.addChatMessage(new TextComponentString("Dimension " + args[2] + " = " + (f.equals(PvPStatus.NOTFORCED) ? "Not forced" : (f.equals(PvPStatus.FORCEDON) ? "Forced on" : "Forced off"))));
+                sender.sendMessage(new TextComponentString("Dimension " + args[2] + " = " + (f.equals(PvPStatus.NOTFORCED) ? "Not forced" : (f.equals(PvPStatus.FORCEDON) ? "Forced on" : "Forced off"))));
             }
         }
     }
@@ -101,16 +101,16 @@ public class CommandPvpToggle extends CommandK4OpOnly {
             //Going to need a lot of arguments here.
             //<name> <x1> <y1> <z1> <x2> <y2> <z2>
             if (args.length < 9) {
-                sender.addChatMessage(new TextComponentString(TextFormatting.RED + "Usage: /pvptoggle area new <name> <x1> <y1> <z1> <x2> <y2> <z2>"));
+                sender.sendMessage(new TextComponentString(TextFormatting.RED + "Usage: /pvptoggle area new <name> <x1> <y1> <z1> <x2> <y2> <z2>"));
                 return;
             } else {
                 //We assume that we have enough arguments.
                 Location loc1 = new Location(args[3], args[4], args[5]);
                 Location loc2 = new Location(args[6], args[7], args[8]);
                 PvPArea newArea = new PvPArea(args[2].toLowerCase(), loc1, loc2, sender.getEntityWorld().provider.getDimension());
-                sender.addChatMessage(new TextComponentString("Creating a new area called " + newArea.getName()));
-                sender.addChatMessage(new TextComponentString(newArea.getLoc1().printLocation()));
-                sender.addChatMessage(new TextComponentString(newArea.getLoc2().printLocation()));
+                sender.sendMessage(new TextComponentString("Creating a new area called " + newArea.getName()));
+                sender.sendMessage(new TextComponentString(newArea.getLoc1().printLocation()));
+                sender.sendMessage(new TextComponentString(newArea.getLoc2().printLocation()));
                 Areas.addToList(newArea);
             }
         }
@@ -119,7 +119,7 @@ public class CommandPvpToggle extends CommandK4OpOnly {
             if (args.length >= 3) {
                 PvPArea theArea = Areas.getAreaByName(args[2].toLowerCase());
                 if (theArea == null) {
-                    sender.addChatMessage(new TextComponentString(TextFormatting.RED + "This area cannot be found!"));
+                    sender.sendMessage(new TextComponentString(TextFormatting.RED + "This area cannot be found!"));
                     return;
                 }
                 Areas.removeAreaByName(args[2].toLowerCase());
@@ -132,48 +132,48 @@ public class CommandPvpToggle extends CommandK4OpOnly {
                     //Args[3] should be the name of the area
                     PvPArea theArea = Areas.getAreaByName(args[3].toLowerCase());
                     if (theArea == null) {
-                        sender.addChatMessage(new TextComponentString(TextFormatting.RED + "This area cannot be found!"));
+                        sender.sendMessage(new TextComponentString(TextFormatting.RED + "This area cannot be found!"));
                         return;
                     }
                     if (args[4].toLowerCase().equals("announce")) {
-                        sender.addChatMessage(new TextComponentString(theArea.getName() + " announce = " + theArea.getAnnounce()));
+                        sender.sendMessage(new TextComponentString(theArea.getName() + " announce = " + theArea.getAnnounce()));
                     } else if (args[4].toLowerCase().equals("forced")) {
-                        sender.addChatMessage(new TextComponentString(theArea.getName() + " forced = " + theArea.getForced()));
+                        sender.sendMessage(new TextComponentString(theArea.getName() + " forced = " + theArea.getForced()));
                     } else {
-                        sender.addChatMessage(new TextComponentString(TextFormatting.RED + "Valid options: announce or forced"));
+                        sender.sendMessage(new TextComponentString(TextFormatting.RED + "Valid options: announce or forced"));
                     }
                 }
                 if (args[2].toLowerCase().equals("set")) {
                     //Args[3] should be the name of the area
                     PvPArea theArea = Areas.getAreaByName(args[3].toLowerCase());
                     if (theArea == null) {
-                        sender.addChatMessage(new TextComponentString(TextFormatting.RED + "This area cannot be found!"));
+                        sender.sendMessage(new TextComponentString(TextFormatting.RED + "This area cannot be found!"));
                         return;
                     }
                     if (args[4].toLowerCase().equals("announce")) {
                         theArea.setAnnounce((args[5].toLowerCase().equals("on") || args[5].toLowerCase().equals("true")));
-                        sender.addChatMessage(new TextComponentString(theArea.getName() + " announce = " + theArea.getAnnounce()));
+                        sender.sendMessage(new TextComponentString(theArea.getName() + " announce = " + theArea.getAnnounce()));
                     } else if (args[4].toLowerCase().equals("forced")) {
                         theArea.setForced((args[5].toLowerCase().equals("on") || args[5].toLowerCase().equals("true")));
-                        sender.addChatMessage(new TextComponentString(theArea.getName() + " forced = " + theArea.getForced()));
+                        sender.sendMessage(new TextComponentString(theArea.getName() + " forced = " + theArea.getForced()));
                     } else {
-                        sender.addChatMessage(new TextComponentString(TextFormatting.RED + "Valid options: announce or forced"));
+                        sender.sendMessage(new TextComponentString(TextFormatting.RED + "Valid options: announce or forced"));
                     }
                 }
             } else {
-                sender.addChatMessage(new TextComponentString(TextFormatting.RED + "Usage: /pvptoggle area options <name> [get/set] <optionName> "
+                sender.sendMessage(new TextComponentString(TextFormatting.RED + "Usage: /pvptoggle area options <name> [get/set] <optionName> "
                         + "[newValue]"));
             }
         }
 
         if(args[1].toLowerCase().equals("help")){
-            sender.addChatMessage(new TextComponentString("Usage: /pvptoggle area new|options|delete"));
+            sender.sendMessage(new TextComponentString("Usage: /pvptoggle area new|options|delete"));
         }
     }
 
 
     @Override
-    public List getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
+    public List getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
 
         List<String> ret = new ArrayList<String>();
 

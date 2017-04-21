@@ -15,19 +15,19 @@ import java.util.List;
 public class CommandPvpToggleClient implements ICommand {
 
     @Override
-    public String getCommandName() {
+    public String getName() {
 
         return "pvpui";
     }
 
     @Override
-    public String getCommandUsage(ICommandSender p_71518_1_) {
+    public String getUsage(ICommandSender p_71518_1_) {
 
         return "pvpui location <x> <y>|own enable/disable|other enable/disable";
     }
 
     @Override
-    public List getCommandAliases() {
+    public List getAliases() {
         return new ArrayList<String>(){};
     }
 
@@ -38,18 +38,18 @@ public class CommandPvpToggleClient implements ICommand {
             if (args[0].toLowerCase().equals("own")) {
                 if (args[1].toLowerCase().equals("enable")) {
                     PvPConfig.INSTANCE.setBool("renderOwnIcon", "ui", true);
-                    sender.addChatMessage(new TextComponentString("Own rendering is now " + TextFormatting.GREEN + "enabled."));
+                    sender.sendMessage(new TextComponentString("Own rendering is now " + TextFormatting.GREEN + "enabled."));
                 } else if (args[1].toLowerCase().equals("disable")) {
                     PvPConfig.INSTANCE.setBool("renderOwnIcon", "ui", false);
-                    sender.addChatMessage(new TextComponentString("Own rendering is now " + TextFormatting.RED + "disabled."));
+                    sender.sendMessage(new TextComponentString("Own rendering is now " + TextFormatting.RED + "disabled."));
                 }
             } else if (args[0].toLowerCase().equals("other")) {
                 if (args[1].toLowerCase().equals("enable")) {
                     PvPConfig.INSTANCE.setBool("renderOtherIcon", "ui", true);
-                    sender.addChatMessage(new TextComponentString("Other person rendering is now " + TextFormatting.GREEN + "enabled."));
+                    sender.sendMessage(new TextComponentString("Other person rendering is now " + TextFormatting.GREEN + "enabled."));
                 } else if (args[1].toLowerCase().equals("disable")) {
                     PvPConfig.INSTANCE.setBool("renderOtherIcon", "ui", false);
-                    sender.addChatMessage(new TextComponentString("Other person rendering is now " + TextFormatting.RED + "disabled."));
+                    sender.sendMessage(new TextComponentString("Other person rendering is now " + TextFormatting.RED + "disabled."));
                 }
             }
         } else if (args.length == 3) {
@@ -60,7 +60,7 @@ public class CommandPvpToggleClient implements ICommand {
                 PvPConfig.INSTANCE.setInt("y", "ui", y);
             }
         } else {
-            sender.addChatMessage(new TextComponentString(getCommandUsage(sender)));
+            sender.sendMessage(new TextComponentString(getUsage(sender)));
         }
     }
 
@@ -72,7 +72,7 @@ public class CommandPvpToggleClient implements ICommand {
 
 
     @Override
-    public List getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos){
+    public List getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos){
         List<String> ret = new ArrayList<String>();
 
         if(args[0].toLowerCase().equals("own") || args[0].toLowerCase().equals("other")){

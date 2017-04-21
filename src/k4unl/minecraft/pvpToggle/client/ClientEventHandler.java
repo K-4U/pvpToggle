@@ -61,7 +61,7 @@ public class ClientEventHandler {
 
         Tessellator tessellator = Tessellator.getInstance();
 
-        PvPStatus status = PvpToggle.clientPvPStatus.get(mc.thePlayer.getGameProfile().getName());
+        PvPStatus status = PvpToggle.clientPvPStatus.get(mc.player.getGameProfile().getName());
 
         if (status == null || status == PvPStatus.ON || status == PvPStatus.FORCEDON) {
             mc.getTextureManager().bindTexture(sword);
@@ -105,12 +105,12 @@ public class ClientEventHandler {
         }
         Minecraft mc = Minecraft.getMinecraft();
 
-        float f = (20F - e.getEntity().getDistanceToEntity(mc.thePlayer)) / 1F;
+        float f = (20F - e.getEntity().getDistanceToEntity(mc.player)) / 1F;
 
-        float alpha = MathHelper.clamp_float(f, 0F, 1F);
+        float alpha = MathHelper.clamp(f, 0F, 1F);
         if (alpha == 0F) return;
 
-        if (e.getEntityPlayer() == mc.thePlayer) return;
+        if (e.getEntityPlayer() == mc.player) return;
 
         GL11.glPushMatrix();
         GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
@@ -122,9 +122,9 @@ public class ClientEventHandler {
         GL11.glColor4f(1F, 1F, 1F, alpha);
         //RenderPlayer
 
-        double x = mc.thePlayer.prevPosX + (mc.thePlayer.posX - mc.thePlayer.prevPosX) * e.getPartialRenderTick();
-        double y = mc.thePlayer.prevPosY + (mc.thePlayer.posY - mc.thePlayer.prevPosY) * e.getPartialRenderTick();
-        double z = mc.thePlayer.prevPosZ + (mc.thePlayer.posZ - mc.thePlayer.prevPosZ) * e.getPartialRenderTick();
+        double x = mc.player.prevPosX + (mc.player.posX - mc.player.prevPosX) * e.getPartialRenderTick();
+        double y = mc.player.prevPosY + (mc.player.posY - mc.player.prevPosY) * e.getPartialRenderTick();
+        double z = mc.player.prevPosZ + (mc.player.posZ - mc.player.prevPosZ) * e.getPartialRenderTick();
         Vec3d playerPos = new Vec3d(x, y, z);
 
         x = e.getEntityPlayer().prevPosX + (e.getEntityPlayer().posX - e.getEntityPlayer().prevPosX) * e.getPartialRenderTick();
