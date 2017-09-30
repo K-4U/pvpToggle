@@ -82,15 +82,19 @@ public class CommandPvpToggle extends CommandK4OpOnly {
                 if (PvpToggle.instance.dimensionSettings.containsKey(Integer.parseInt(args[2]))) {
                     PvpToggle.instance.dimensionSettings.remove(Integer.parseInt(args[2]));
                 }
-                int v = Integer.parseInt(args[3]);
-
-                if (v < -1 || v > 1) {
+                try {
+                    int v = Integer.parseInt(args[3]);
+    
+                    if (v < -1 || v > 1) {
+                        sender.sendMessage(new TextComponentString("Please enter -1, 0 or 1 as a value"));
+                        return;
+                    }
+                    PvpToggle.instance.dimensionSettings.put(Integer.parseInt(args[2]), PvPStatus.fromInt(v));
+                    PvPStatus f = PvPStatus.fromInt(v);
+                    sender.sendMessage(new TextComponentString("Dimension " + args[2] + " = " + (f.equals(PvPStatus.NOTFORCED) ? "Not forced" : (f.equals(PvPStatus.FORCEDON) ? "Forced on" : "Forced off"))));
+                }catch(NumberFormatException e){
                     sender.sendMessage(new TextComponentString("Please enter -1, 0 or 1 as a value"));
-                    return;
                 }
-                PvpToggle.instance.dimensionSettings.put(Integer.parseInt(args[2]), PvPStatus.fromInt(v));
-                PvPStatus f = PvPStatus.fromInt(v);
-                sender.sendMessage(new TextComponentString("Dimension " + args[2] + " = " + (f.equals(PvPStatus.NOTFORCED) ? "Not forced" : (f.equals(PvPStatus.FORCEDON) ? "Forced on" : "Forced off"))));
             }
         }
     }
