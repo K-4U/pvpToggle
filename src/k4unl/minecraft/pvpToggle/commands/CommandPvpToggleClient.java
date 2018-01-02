@@ -1,6 +1,8 @@
 package k4unl.minecraft.pvpToggle.commands;
 
+import k4unl.minecraft.pvpToggle.PvpToggle;
 import k4unl.minecraft.pvpToggle.lib.config.PvPConfig;
+import k4unl.minecraft.pvpToggle.network.packets.PacketRequestData;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
@@ -13,28 +15,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CommandPvpToggleClient implements ICommand {
-
+    
     @Override
     public String getName() {
-
+        
         return "pvpui";
     }
-
+    
     @Override
     public String getUsage(ICommandSender p_71518_1_) {
-
+        
         return "pvpui location <x> <y>|own enable/disable|other enable/disable";
     }
-
+    
     @Override
     public List getAliases() {
-        return new ArrayList<String>(){};
+        
+        return new ArrayList<String>() {
+        };
     }
-
+    
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-
-        if (args.length == 2) {
+        
+        if (args.length == 1) {
+            if (args[0].equalsIgnoreCase("open")) {
+                //ClientHandler.setOpenGui(true);
+                //Ask for the list of areas beforehand.
+                PvpToggle.networkHandler.sendToServer(new PacketRequestData(true, true, true));
+            }
+        }else if (args.length == 2) {
             if (args[0].toLowerCase().equals("own")) {
                 if (args[1].toLowerCase().equals("enable")) {
                     PvPConfig.INSTANCE.setBool("renderOwnIcon", "ui", true);
@@ -63,38 +73,40 @@ public class CommandPvpToggleClient implements ICommand {
             sender.sendMessage(new TextComponentString(getUsage(sender)));
         }
     }
-
+    
     @Override
     public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-
+        
         return true;
     }
-
-
+    
+    
     @Override
-    public List getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos){
+    public List getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
+        
         List<String> ret = new ArrayList<String>();
-
-        if(args[0].toLowerCase().equals("own") || args[0].toLowerCase().equals("other")){
+        
+        if (args[0].toLowerCase().equals("own") || args[0].toLowerCase().equals("other")) {
             ret.add("enable");
             ret.add("disable");
-        }else{
+        } else {
             ret.add("own");
             ret.add("other");
             ret.add("location");
         }
-
+        
         return ret;
     }
-
+    
     @Override
     public boolean isUsernameIndex(String[] p_82358_1_, int p_82358_2_) {
-
+        
         return false;
     }
-
+    
     @Override
     public int compareTo(ICommand o) {
+        
         return 0;
     }
 }

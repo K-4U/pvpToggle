@@ -1,7 +1,9 @@
-package k4unl.minecraft.pvpToggle.lib;
+package k4unl.minecraft.pvpToggle.server;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import k4unl.minecraft.pvpToggle.lib.Log;
+import k4unl.minecraft.pvpToggle.lib.PvPArea;
 
 import java.io.BufferedReader;
 import java.io.File;

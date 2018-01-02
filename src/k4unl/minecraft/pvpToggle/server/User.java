@@ -1,4 +1,4 @@
-package k4unl.minecraft.pvpToggle.lib;
+package k4unl.minecraft.pvpToggle.server;
 
 import k4unl.minecraft.pvpToggle.api.PvPStatus;
 import k4unl.minecraft.pvpToggle.lib.config.PvPConfig;

@@ -2,8 +2,8 @@ package k4unl.minecraft.pvpToggle.commands;
 
 import k4unl.minecraft.k4lib.commands.CommandK4Base;
 import k4unl.minecraft.pvpToggle.PvpToggle;
-import k4unl.minecraft.pvpToggle.lib.User;
-import k4unl.minecraft.pvpToggle.lib.Users;
+import k4unl.minecraft.pvpToggle.server.User;
+import k4unl.minecraft.pvpToggle.server.Users;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;

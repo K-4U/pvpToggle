@@ -4,10 +4,11 @@ import k4unl.minecraft.k4lib.lib.Location;
 import k4unl.minecraft.pvpToggle.api.PvPStatus;
 import k4unl.minecraft.pvpToggle.api.PvpAPI.IPvpToggleApi;
 import k4unl.minecraft.pvpToggle.api.exceptions.*;
-import k4unl.minecraft.pvpToggle.lib.Areas;
+import k4unl.minecraft.pvpToggle.server.Areas;
 import k4unl.minecraft.pvpToggle.lib.PvPArea;
-import k4unl.minecraft.pvpToggle.lib.User;
-import k4unl.minecraft.pvpToggle.lib.Users;
+import k4unl.minecraft.pvpToggle.server.User;
+import k4unl.minecraft.pvpToggle.server.Users;
+import k4unl.minecraft.pvpToggle.server.ServerHandler;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
@@ -43,8 +44,8 @@ public class PvpToggleAPI implements IPvpToggleApi {
     @Override
     public PvPStatus getDimensionSetting(int dimensionID) throws NoSuchDimensionSavedException {
 
-        if (PvpToggle.instance.dimensionSettings.containsKey(dimensionID)) {
-            return PvpToggle.instance.dimensionSettings.get(dimensionID);
+        if (ServerHandler.getDimensionSettings().containsKey(dimensionID)) {
+            return ServerHandler.getDimensionSettings().get(dimensionID);
         } else {
             throw new NoSuchDimensionSavedException();
         }
@@ -56,10 +57,10 @@ public class PvpToggleAPI implements IPvpToggleApi {
         if (toSet == PvPStatus.OFF || toSet == PvPStatus.ON) {
             throw new IncorrectStatusException();
         }
-        if (PvpToggle.instance.dimensionSettings.containsKey(dimensionId)) {
-            PvpToggle.instance.dimensionSettings.remove(dimensionId);
+        if (ServerHandler.getDimensionSettings().containsKey(dimensionId)) {
+            ServerHandler.getDimensionSettings().remove(dimensionId);
         }
-        PvpToggle.instance.dimensionSettings.put(dimensionId, toSet);
+        ServerHandler.getDimensionSettings().put(dimensionId, toSet);
     }
 
     @Override

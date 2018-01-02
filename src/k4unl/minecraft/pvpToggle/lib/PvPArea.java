@@ -12,7 +12,13 @@ public class PvPArea extends Area {
 
         super(name_, loc1_, loc2_, dimensionId);
     }
-
+    
+    public PvPArea() {
+    
+        this(null, null, null, 0);
+    
+    }
+    
     public void setAnnounce(boolean newValue){
         announce = newValue;
     }

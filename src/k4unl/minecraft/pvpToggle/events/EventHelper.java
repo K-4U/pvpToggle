@@ -1,14 +1,22 @@
 package k4unl.minecraft.pvpToggle.events;
 
 import k4unl.minecraft.k4lib.lib.Functions;
+import k4unl.minecraft.k4lib.lib.Location;
 import k4unl.minecraft.pvpToggle.PvpToggle;
 import k4unl.minecraft.pvpToggle.api.PvPStatus;
-import k4unl.minecraft.pvpToggle.lib.*;
+import k4unl.minecraft.pvpToggle.lib.Log;
+import k4unl.minecraft.pvpToggle.lib.PvPArea;
 import k4unl.minecraft.pvpToggle.lib.config.PvPConfig;
+import k4unl.minecraft.pvpToggle.network.packets.PacketPickedLocation;
 import k4unl.minecraft.pvpToggle.network.packets.PacketPvPList;
+import k4unl.minecraft.pvpToggle.server.Areas;
+import k4unl.minecraft.pvpToggle.server.ServerHandler;
+import k4unl.minecraft.pvpToggle.server.User;
+import k4unl.minecraft.pvpToggle.server.Users;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -23,6 +31,7 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
@@ -33,10 +42,26 @@ import java.util.HashMap;
 public class EventHelper {
     
     private int ticksPassed = 0;
+    private HashMap<String, PvPArea>      players        = new HashMap<>();
+    private HashMap<String, EntityPlayer> playerEntities = new HashMap<>();
     
     public static void init() {
         
         MinecraftForge.EVENT_BUS.register(new EventHelper());
+    }
+    
+    @SubscribeEvent
+    public void onPlayerInteractEvent(PlayerInteractEvent.LeftClickBlock event) {
+        
+        ItemStack diamondHoe = new ItemStack(Items.DIAMOND_HOE);
+        if (event.getItemStack().isItemEqualIgnoreDurability(diamondHoe)) {
+            if (ServerHandler.getPlayersPicking().contains(event.getEntityPlayer().getName())) {
+                event.setCanceled(true); //First things first, stop whatever it was gonna do
+                //Now, send this position to the client:
+                Location loc = new Location(event.getPos());
+                PvpToggle.networkHandler.getChannel().sendTo(new PacketPickedLocation(loc), (EntityPlayerMP) event.getEntityPlayer());
+            }
+        }
     }
     
     @SubscribeEvent
@@ -47,15 +72,14 @@ public class EventHelper {
             if (Users.hasPVPEnabled(source.getName())) {
                 if (!Users.hasPVPEnabled(event.getEntityLiving().getName())) {
                     event.setCanceled(true);
-                    source.sendMessage(new TextComponentTranslation(TextFormatting.RED + "Both players must have PvP enabled!"));
+                    source.sendStatusMessage(new TextComponentTranslation(TextFormatting.RED + "Both players must have PvP enabled!"), true);
                 }
             } else {
                 event.setCanceled(true);
-                source.sendMessage(new TextComponentTranslation(TextFormatting.RED + "Both players must have PvP enabled!"));
+                source.sendStatusMessage(new TextComponentTranslation(TextFormatting.RED + "Both players must have PvP enabled!"), true);
             }
         }
     }
-    
     
     @SubscribeEvent
     public void onPlayerDeath(PlayerDropsEvent event) {
@@ -159,25 +183,11 @@ public class EventHelper {
             }
         }
     }
-    
+
     @SubscribeEvent
     public void playerChangedDimension(PlayerChangedDimensionEvent event) {
         
-        if (PvpToggle.instance.dimensionSettings.containsKey(event.toDim)) {
-            if (!PvpToggle.instance.dimensionSettings.get(event.toDim).equals(PvPStatus.NOTFORCED)) {
-                if (PvPConfig.INSTANCE.getBool("announceDimensionSetting")) {
-                    event.player.sendMessage(
-                            new TextComponentString(
-                                    "This dimension has PvP forced to " + (PvpToggle.instance.dimensionSettings.get(event.toDim).equals(PvPStatus.FORCEDON) ? "On" : "Off")));
-                }
-            }
-            Users.getUserByName(event.player.getGameProfile().getName()).setIsPvPForced(PvpToggle.instance.dimensionSettings.get(event.toDim));
-            PvpToggle.networkHandler.sendToDimension(Users.createPacket(event.player.getGameProfile().getName()), event.toDim);
-        } else {
-            //Remember his old setting.
-            Users.getUserByName(event.player.getGameProfile().getName()).setIsPvPForced(PvPStatus.OFF);
-            PvpToggle.networkHandler.sendToDimension(Users.createPacket(event.player.getGameProfile().getName()), event.toDim);
-        }
+        ServerHandler.updatePlayerToDimension(event.toDim, event.player);
         //And, send him all a packet from all the users in the dimension.
         PacketPvPList toSend = new PacketPvPList();
         for (EntityPlayer player : Functions.getServer().getWorld(event.toDim).playerEntities) {
@@ -186,10 +196,6 @@ public class EventHelper {
         PvpToggle.networkHandler.sendTo(toSend, (EntityPlayerMP) event.player);
         
     }
-    
-    
-    private HashMap<String, PvPArea>      players        = new HashMap<>();
-    private HashMap<String, EntityPlayer> playerEntities = new HashMap<>();
     
     @SubscribeEvent
     public void serverTickEvent(TickEvent.ServerTickEvent event) {
@@ -245,9 +251,9 @@ public class EventHelper {
                             
                             //Now check if the dimension they're in requires a force:
                             int dimension = playerEntities.get(usr.getUserName()).dimension;
-                            if (PvpToggle.instance.dimensionSettings.containsKey(dimension)) {
-                                if (!PvpToggle.instance.dimensionSettings.get(dimension).equals(PvPStatus.NOTFORCED)) {
-                                    usr.setIsPvPForced(PvpToggle.instance.dimensionSettings.get(dimension));
+                            if (ServerHandler.getDimensionSettings().containsKey(dimension)) {
+                                if (!ServerHandler.getDimensionSettings().get(dimension).equals(PvPStatus.NOTFORCED)) {
+                                    usr.setIsPvPForced(ServerHandler.getDimensionSettings().get(dimension));
                                 } else {
                                     usr.setIsPvPForced(PvPStatus.NOTFORCED);
                                 }
@@ -257,11 +263,11 @@ public class EventHelper {
                             
                             if (Areas.getAreaByName(usr.getIsInArea()).getAnnounce()) {
                                 if (usr.getPvpStatus().equals(PvPStatus.NOTFORCED)) {
-                                    playerEntities.get(usr.getUserName()).sendMessage(
-                                            new TextComponentString("You have left area " + usr.getIsInArea() + ". Your PvP is set to " + (usr.getPVP() ? "On" : "Off")));
+                                    playerEntities.get(usr.getUserName()).sendStatusMessage(
+                                            new TextComponentString("You have left area " + usr.getIsInArea() + ". Your PvP is set to " + (usr.getPVP() ? "On" : "Off")), true);
                                 } else {
-                                    playerEntities.get(usr.getUserName()).sendMessage(
-                                            new TextComponentString("You have left area " + usr.getIsInArea() + ". Your PvP is forced to " + (usr.getPvpStatus().equals(PvPStatus.FORCEDON) ? "On" : "Off")));
+                                    playerEntities.get(usr.getUserName()).sendStatusMessage(
+                                            new TextComponentString("You have left area " + usr.getIsInArea() + ". Your PvP is forced to " + (usr.getPvpStatus().equals(PvPStatus.FORCEDON) ? "On" : "Off")), true);
                                 }
                             }
                             

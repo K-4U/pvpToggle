@@ -2,8 +2,8 @@ package k4unl.minecraft.pvpToggle.network.packets;
 
 import io.netty.buffer.ByteBuf;
 import k4unl.minecraft.k4lib.network.messages.AbstractPacket;
-import k4unl.minecraft.pvpToggle.PvpToggle;
 import k4unl.minecraft.pvpToggle.api.PvPStatus;
+import k4unl.minecraft.pvpToggle.client.ClientHandler;
 import net.minecraft.entity.player.EntityPlayer;
 
 import java.util.ArrayList;
@@ -36,10 +36,10 @@ public class PacketPvPList extends AbstractPacket<PacketPvPList> {
     public void handleClientSide(PacketPvPList message, EntityPlayer player) {
         for(usr user : message.users) {
 
-            if (PvpToggle.clientPvPStatus.containsKey(user.user)) {
-                PvpToggle.clientPvPStatus.remove(user.user);
+            if (ClientHandler.getClientPvPStatus().containsKey(user.user)) {
+                ClientHandler.getClientPvPStatus().remove(user.user);
             }
-            PvpToggle.clientPvPStatus.put(user.user, user.pvpStatus);
+            ClientHandler.getClientPvPStatus().put(user.user, user.pvpStatus);
         }
     }
 

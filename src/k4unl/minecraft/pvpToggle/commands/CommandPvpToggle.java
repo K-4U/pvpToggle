@@ -2,12 +2,12 @@ package k4unl.minecraft.pvpToggle.commands;
 
 import k4unl.minecraft.k4lib.commands.CommandK4OpOnly;
 import k4unl.minecraft.k4lib.lib.Location;
-import k4unl.minecraft.pvpToggle.PvpToggle;
-import k4unl.minecraft.pvpToggle.lib.Areas;
-import k4unl.minecraft.pvpToggle.lib.PvPArea;
 import k4unl.minecraft.pvpToggle.api.PvPStatus;
-import k4unl.minecraft.pvpToggle.lib.Users;
+import k4unl.minecraft.pvpToggle.server.Areas;
+import k4unl.minecraft.pvpToggle.lib.PvPArea;
+import k4unl.minecraft.pvpToggle.server.Users;
 import k4unl.minecraft.pvpToggle.lib.config.ModInfo;
+import k4unl.minecraft.pvpToggle.server.ServerHandler;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
@@ -20,36 +20,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CommandPvpToggle extends CommandK4OpOnly {
-
+    
     @Override
     public String getName() {
-
+        
         return "pvptoggle";
     }
-
+    
     @Override
     public String getUsage(ICommandSender p_71518_1_) {
-
+        
         return "pvptoggle version|save|load|area|dimension";
     }
-
+    
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-
+        
         if (args.length >= 1) {
             if (args[0].toLowerCase().equals("version")) {
                 sender.sendMessage(new TextComponentString("PvPToggle version " + ModInfo.VERSION));
             } else if (args[0].toLowerCase().equals("save")) {
                 Users.saveToFile(DimensionManager.getCurrentSaveRootDirectory());
                 Areas.saveToFile(DimensionManager.getCurrentSaveRootDirectory());
-                PvpToggle.instance.saveDimensionSettingsToFile(DimensionManager.getCurrentSaveRootDirectory());
-
+                ServerHandler.saveDimensionSettingsToFile(DimensionManager.getCurrentSaveRootDirectory());
+                
                 sender.sendMessage(new TextComponentString("Areas, users and dimensions saved to world dir!"));
             } else if (args[0].toLowerCase().equals("load")) {
                 Users.readFromFile(DimensionManager.getCurrentSaveRootDirectory());
                 Areas.readFromFile(DimensionManager.getCurrentSaveRootDirectory());
-                PvpToggle.instance.readDimensionSettingsFromFile(DimensionManager.getCurrentSaveRootDirectory());
-
+                ServerHandler.readDimensionSettingsFromFile(DimensionManager.getCurrentSaveRootDirectory());
+                
                 sender.sendMessage(new TextComponentString("Areas, users and dimensions loaded from world dir!"));
             }
         }
@@ -62,16 +62,16 @@ public class CommandPvpToggle extends CommandK4OpOnly {
             }
         }
     }
-
+    
     private void handleDimensionCommand(ICommandSender sender, String[] args) {
         //1 = set/get
         //2 = dimension id
         //3 = -1/0/1
-
+        
         if (args[1].toLowerCase().equals("get")) {
             if (args.length >= 3) {
-                if (PvpToggle.instance.dimensionSettings.containsKey(Integer.parseInt(args[2]))) {
-                    PvPStatus f = PvpToggle.instance.dimensionSettings.get(Integer.parseInt(args[2]));
+                if (ServerHandler.getDimensionSettings().containsKey(Integer.parseInt(args[2]))) {
+                    PvPStatus f = ServerHandler.getDimensionSettings().get(Integer.parseInt(args[2]));
                     sender.sendMessage(new TextComponentString("Dimension " + args[2] + " = " + (f.equals(PvPStatus.NOTFORCED) ? "Not forced" : (f.equals(PvPStatus.FORCEDON) ? "Forced on" : "Forced off"))));
                 } else {
                     sender.sendMessage(new TextComponentString("Dimension " + args[2] + " = Not forced"));
@@ -79,28 +79,28 @@ public class CommandPvpToggle extends CommandK4OpOnly {
             }
         } else {
             if (args.length >= 4) {
-                if (PvpToggle.instance.dimensionSettings.containsKey(Integer.parseInt(args[2]))) {
-                    PvpToggle.instance.dimensionSettings.remove(Integer.parseInt(args[2]));
+                if (ServerHandler.getDimensionSettings().containsKey(Integer.parseInt(args[2]))) {
+                    ServerHandler.getDimensionSettings().remove(Integer.parseInt(args[2]));
                 }
                 try {
                     int v = Integer.parseInt(args[3]);
-    
+                    
                     if (v < -1 || v > 1) {
                         sender.sendMessage(new TextComponentString("Please enter -1, 0 or 1 as a value"));
                         return;
                     }
-                    PvpToggle.instance.dimensionSettings.put(Integer.parseInt(args[2]), PvPStatus.fromInt(v));
+                    ServerHandler.getDimensionSettings().put(Integer.parseInt(args[2]), PvPStatus.fromInt(v));
                     PvPStatus f = PvPStatus.fromInt(v);
                     sender.sendMessage(new TextComponentString("Dimension " + args[2] + " = " + (f.equals(PvPStatus.NOTFORCED) ? "Not forced" : (f.equals(PvPStatus.FORCEDON) ? "Forced on" : "Forced off"))));
-                }catch(NumberFormatException e){
+                } catch (NumberFormatException e) {
                     sender.sendMessage(new TextComponentString("Please enter -1, 0 or 1 as a value"));
                 }
             }
         }
     }
-
+    
     private void handleAreaCommand(ICommandSender sender, String[] args) {
-
+        
         if (args[1].toLowerCase().equals("new")) {
             //Going to need a lot of arguments here.
             //<name> <x1> <y1> <z1> <x2> <y2> <z2>
@@ -118,7 +118,7 @@ public class CommandPvpToggle extends CommandK4OpOnly {
                 Areas.addToList(newArea);
             }
         }
-
+        
         if (args[1].toLowerCase().equals("delete")) {
             if (args.length >= 3) {
                 PvPArea theArea = Areas.getAreaByName(args[2].toLowerCase());
@@ -129,7 +129,7 @@ public class CommandPvpToggle extends CommandK4OpOnly {
                 Areas.removeAreaByName(args[2].toLowerCase());
             }
         }
-
+        
         if (args[1].toLowerCase().equals("options")) {
             if (args.length >= 5) {
                 if (args[2].toLowerCase().equals("get")) {
@@ -169,18 +169,18 @@ public class CommandPvpToggle extends CommandK4OpOnly {
                         + "[newValue]"));
             }
         }
-
-        if(args[1].toLowerCase().equals("help")){
+        
+        if (args[1].toLowerCase().equals("help")) {
             sender.sendMessage(new TextComponentString("Usage: /pvptoggle area new|options|delete"));
         }
     }
-
-
+    
+    
     @Override
     public List getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
-
+        
         List<String> ret = new ArrayList<String>();
-
+        
         if (args.length == 1) {
             ret.add("area");
             ret.add("dimension");
@@ -206,7 +206,7 @@ public class CommandPvpToggle extends CommandK4OpOnly {
                 }
             }
         }
-
+        
         return ret;
     }
 }

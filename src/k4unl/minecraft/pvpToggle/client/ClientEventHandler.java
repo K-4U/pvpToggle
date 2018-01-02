@@ -1,7 +1,9 @@
 package k4unl.minecraft.pvpToggle.client;
 
-import k4unl.minecraft.pvpToggle.PvpToggle;
+import k4unl.minecraft.k4lib.lib.Functions;
+import k4unl.minecraft.k4lib.lib.Location;
 import k4unl.minecraft.pvpToggle.api.PvPStatus;
+import k4unl.minecraft.pvpToggle.client.gui.GuiPvpToggle;
 import k4unl.minecraft.pvpToggle.lib.config.ModInfo;
 import k4unl.minecraft.pvpToggle.lib.config.PvPConfig;
 import net.minecraft.client.Minecraft;
@@ -14,6 +16,7 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
@@ -23,9 +26,10 @@ public class ClientEventHandler {
     
     public static final ClientEventHandler instance = new ClientEventHandler();
     
-    public static final ResourceLocation shield = new ResourceLocation(ModInfo.LID, "textures/gui/shield.png");
-    public static final ResourceLocation lock   = new ResourceLocation(ModInfo.LID, "textures/gui/lock.png");
-    public static final ResourceLocation sword  = new ResourceLocation(ModInfo.LID, "textures/gui/swords.png");
+    public static final ResourceLocation shield     = new ResourceLocation(ModInfo.LID, "textures/gui/shield.png");
+    public static final ResourceLocation lock       = new ResourceLocation(ModInfo.LID, "textures/gui/lock.png");
+    public static final ResourceLocation sword      = new ResourceLocation(ModInfo.LID, "textures/gui/swords.png");
+    public static final ResourceLocation pickingGui = new ResourceLocation(ModInfo.LID, "textures/gui/pickinggui.png");
     
     public void renderTimeOverlay() {
     
@@ -62,7 +66,7 @@ public class ClientEventHandler {
         
         Tessellator tessellator = Tessellator.getInstance();
         
-        PvPStatus status = PvpToggle.clientPvPStatus.get(mc.player.getGameProfile().getName());
+        PvPStatus status = ClientHandler.getClientPvPStatus().get(mc.player.getGameProfile().getName());
         
         if (status == null || status == PvPStatus.ON || status == PvPStatus.FORCEDON) {
             mc.getTextureManager().bindTexture(sword);
@@ -87,6 +91,38 @@ public class ClientEventHandler {
             tessellator.getBuffer().pos((double) (x + 0), (double) (y + 0), (double) zLevel).tex(0.0, 0.0).endVertex();
             tessellator.draw();
         }
+        
+        if (ClientHandler.isPicking()) {
+            //TODO: Render gui
+            tessellator.getBuffer().begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+            h = 112;
+            w = 88;
+            y = (event.getResolution().getScaledHeight() - h) / 2;
+            x = 5;
+            mc.getTextureManager().bindTexture(pickingGui);
+            tessellator.getBuffer().pos((double) (x + 0), (double) (y + h), (double) zLevel).tex(0.0, 1.0).endVertex();
+            tessellator.getBuffer().pos((double) (x + w), (double) (y + h), (double) zLevel).tex(1.0, 1.0).endVertex();
+            tessellator.getBuffer().pos((double) (x + w), (double) (y + 0), (double) zLevel).tex(1.0, 0.0).endVertex();
+            tessellator.getBuffer().pos((double) (x + 0), (double) (y + 0), (double) zLevel).tex(0.0, 0.0).endVertex();
+            tessellator.draw();
+            
+            mc.fontRenderer.drawString("Picking block", x + 5, y + 5, 0xFFFFFF, false);
+            mc.fontRenderer.drawString("Hit a block with", x + 5, y + 7 + (mc.fontRenderer.FONT_HEIGHT + 2) * 1, 0xFFFFFF, false);
+            mc.fontRenderer.drawString("a diamond hoe", x + 5, y + 7 + (mc.fontRenderer.FONT_HEIGHT + 2) * 2, 0xFFFFFF, false);
+            mc.fontRenderer.drawString("to select a", x + 5, y + 7 + (mc.fontRenderer.FONT_HEIGHT + 2) * 3, 0xFFFFFF, false);
+            mc.fontRenderer.drawString("location.", x + 5, y + 7 + (mc.fontRenderer.FONT_HEIGHT + 2) * 4, 0xFFFFFF, false);
+            //Have cached the location the player is looking at.
+            if (ClientHandler.getLookingAt() != null) {
+                mc.fontRenderer.drawString("X: " + ClientHandler.getLookingAt().getX(), x + 5, y + 7 + (mc.fontRenderer.FONT_HEIGHT + 2) * 5, 0xFFFFFF, false);
+                mc.fontRenderer.drawString("Y: " + ClientHandler.getLookingAt().getY(), x + 5, y + 7 + (mc.fontRenderer.FONT_HEIGHT + 2) * 6, 0xFFFFFF, false);
+                mc.fontRenderer.drawString("Z: " + ClientHandler.getLookingAt().getZ(), x + 5, y + 7 + (mc.fontRenderer.FONT_HEIGHT + 2) * 7, 0xFFFFFF, false);
+            } else {
+                mc.fontRenderer.drawString("X: ", x + 5, y + 7 + (mc.fontRenderer.FONT_HEIGHT + 2) * 5, 0xFFFFFF, false);
+                mc.fontRenderer.drawString("Y: ", x + 5, y + 7 + (mc.fontRenderer.FONT_HEIGHT + 2) * 6, 0xFFFFFF, false);
+                mc.fontRenderer.drawString("Z: ", x + 5, y + 7 + (mc.fontRenderer.FONT_HEIGHT + 2) * 7, 0xFFFFFF, false);
+            }
+        }
+        
         
         //GL11.glEnable(GL11.GL_TEXTURE_2D);
         //GL11.glDisable(GL11.GL_BLEND);
@@ -139,7 +175,7 @@ public class ClientEventHandler {
         GL11.glRotatef(Minecraft.getMinecraft().getRenderManager().playerViewX, 1F, 0F, 0F);
         GL11.glScalef(.5F, -.5F, -.5F);
         
-        PvPStatus status = PvpToggle.clientPvPStatus.get(e.getEntityPlayer().getGameProfile().getName());
+        PvPStatus status = ClientHandler.getClientPvPStatus().get(e.getEntityPlayer().getGameProfile().getName());
         
         if (status == null || status == PvPStatus.ON || status == PvPStatus.FORCEDON) {
             mc.getTextureManager().bindTexture(sword);
@@ -177,4 +213,30 @@ public class ClientEventHandler {
         GL11.glPopAttrib();
         GL11.glPopMatrix();
     }
+    
+    @SubscribeEvent
+    public void tickPlayer(TickEvent event) {
+        
+        if (event.phase == TickEvent.Phase.END) {
+            if (event.side.isClient()) {
+                if (ClientHandler.isOpenGui()) {
+                    Minecraft.getMinecraft().displayGuiScreen(new GuiPvpToggle());
+                    ClientHandler.setOpenGui(false);
+                }
+                if(ClientHandler.isOpenHolder()){
+                    Minecraft.getMinecraft().displayGuiScreen(ClientHandler.getHolder());
+                    ClientHandler.setOpenHolder(false);
+                }
+                if (ClientHandler.isPicking()) {
+                    try {
+                        Location lookedBlock = Functions.getEntityLookedBlock(Minecraft.getMinecraft().player, 5.75F);
+                        ClientHandler.setLookingAt(lookedBlock);
+                    } catch (NullPointerException e) {
+                        //I hate you
+                    }
+                }
+            }
+        }
+    }
+    
 }
