@@ -53,12 +53,10 @@ public class CommandPvpToggle extends CommandK4OpOnly {
                 sender.addChatMessage(new TextComponentString("Areas, users and dimensions loaded from world dir!"));
             } else if (args[0].toLowerCase().equals("area")) {
                 handleAreaCommand(sender, args);
-            }
-        }
-        // Dimension
-        else if (args.length > 2) {
-            if (args[0].toLowerCase().equals("dimension")) {
+            } else if (args[0].toLowerCase().equals("dimension")) {
                 handleDimensionCommand(sender, args);
+            } else {
+                sender.addChatMessage(new TextComponentString("Usage: /pvptoggle version|save|load|area|dimension"));
             }
         }
         else {
