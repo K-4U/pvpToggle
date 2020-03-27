@@ -51,15 +51,18 @@ public class CommandPvpToggle extends CommandK4OpOnly {
                 PvpToggle.instance.readDimensionSettingsFromFile(DimensionManager.getCurrentSaveRootDirectory());
 
                 sender.addChatMessage(new TextComponentString("Areas, users and dimensions loaded from world dir!"));
+            } else if (args[0].toLowerCase().equals("area")) {
+                handleAreaCommand(sender, args);
             }
         }
-        //Area
-        if (args.length > 2) {
-            if (args[0].toLowerCase().equals("area")) {
-                handleAreaCommand(sender, args);
-            } else if (args[0].toLowerCase().equals("dimension")) {
+        // Dimension
+        else if (args.length > 2) {
+            if (args[0].toLowerCase().equals("dimension")) {
                 handleDimensionCommand(sender, args);
             }
+        }
+        else {
+            sender.addChatMessage(new TextComponentString("Usage: /pvptoggle version|save|load|area|dimension"));
         }
     }
 
@@ -77,7 +80,10 @@ public class CommandPvpToggle extends CommandK4OpOnly {
                     sender.addChatMessage(new TextComponentString("Dimension " + args[2] + " = Not forced"));
                 }
             }
-        } else {
+            else {
+                sender.addChatMessage(new TextComponentString("Usage: /pvptoggle dimension get <dimensionId>"));   
+            }    
+        } else if (args[1].toLowerCase().equals("set")) {
             if (args.length >= 4) {
                 if (PvpToggle.instance.dimensionSettings.containsKey(Integer.parseInt(args[2]))) {
                     PvpToggle.instance.dimensionSettings.remove(Integer.parseInt(args[2]));
@@ -92,6 +98,12 @@ public class CommandPvpToggle extends CommandK4OpOnly {
                 PvPStatus f = PvPStatus.fromInt(v);
                 sender.addChatMessage(new TextComponentString("Dimension " + args[2] + " = " + (f.equals(PvPStatus.NOTFORCED) ? "Not forced" : (f.equals(PvPStatus.FORCEDON) ? "Forced on" : "Forced off"))));
             }
+            else {
+                sender.addChatMessage(new TextComponentString("Usage: /pvptoggle dimension set <dimensionId> <-1|0|1>"));
+            }
+        }
+        else {
+            sender.addChatMessage(new TextComponentString("Usage: /pvptoggle dimension get|set"));
         }
     }
 
@@ -113,9 +125,7 @@ public class CommandPvpToggle extends CommandK4OpOnly {
                 sender.addChatMessage(new TextComponentString(newArea.getLoc2().printLocation()));
                 Areas.addToList(newArea);
             }
-        }
-
-        if (args[1].toLowerCase().equals("delete")) {
+        } else if (args[1].toLowerCase().equals("delete")) {
             if (args.length >= 3) {
                 PvPArea theArea = Areas.getAreaByName(args[2].toLowerCase());
                 if (theArea == null) {
@@ -124,9 +134,10 @@ public class CommandPvpToggle extends CommandK4OpOnly {
                 }
                 Areas.removeAreaByName(args[2].toLowerCase());
             }
-        }
-
-        if (args[1].toLowerCase().equals("options")) {
+            else {
+                sender.addChatMessage(new TextComponentString("Usage: /pvptoggle area delete <name>"));
+            }
+        } else if (args[1].toLowerCase().equals("options")) {
             if (args.length >= 5) {
                 if (args[2].toLowerCase().equals("get")) {
                     //Args[3] should be the name of the area
@@ -142,8 +153,7 @@ public class CommandPvpToggle extends CommandK4OpOnly {
                     } else {
                         sender.addChatMessage(new TextComponentString(TextFormatting.RED + "Valid options: announce or forced"));
                     }
-                }
-                if (args[2].toLowerCase().equals("set")) {
+                } else if (args[2].toLowerCase().equals("set")) {
                     //Args[3] should be the name of the area
                     PvPArea theArea = Areas.getAreaByName(args[3].toLowerCase());
                     if (theArea == null) {
@@ -160,13 +170,15 @@ public class CommandPvpToggle extends CommandK4OpOnly {
                         sender.addChatMessage(new TextComponentString(TextFormatting.RED + "Valid options: announce or forced"));
                     }
                 }
+                else {
+                    sender.addChatMessage(new TextComponentString(TextFormatting.RED + "Usage: /pvptoggle area options <name> [get/set] <optionName> "
+                        + "[newValue]"));
+                }
             } else {
                 sender.addChatMessage(new TextComponentString(TextFormatting.RED + "Usage: /pvptoggle area options <name> [get/set] <optionName> "
                         + "[newValue]"));
             }
-        }
-
-        if(args[1].toLowerCase().equals("help")){
+        } else { //if(args[1].toLowerCase().equals("help")){
             sender.addChatMessage(new TextComponentString("Usage: /pvptoggle area new|options|delete"));
         }
     }
@@ -188,17 +200,23 @@ public class CommandPvpToggle extends CommandK4OpOnly {
                 if (args.length == 2) {
                     ret.add("new");
                     ret.add("delete");
-                    ret.add("option");
+                    ret.add("options");
                 } else {
-                    if (args[1].toLowerCase().equals("option")) {
-                        if (args.length == 3) {
+                    if (args[1].toLowerCase().equals("options")) {
+                        // args[3] should be <name> of area, idk how to indicate that for tab completion
+                        if (args.length == 4) {
                             ret.add("get");
                             ret.add("set");
-                        } else {
+                        } else if (args.length == 5) {
                             ret.add("announce");
                             ret.add("forced");
                         }
                     }
+                }
+            } else if (args[0].toLowerCase().equals("dimension")) {
+                if (args.length == 2) {
+                    ret.add("get");
+                    ret.add("set");
                 }
             }
         }
