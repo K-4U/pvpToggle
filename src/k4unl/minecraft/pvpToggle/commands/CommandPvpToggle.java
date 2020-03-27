@@ -131,6 +131,7 @@ public class CommandPvpToggle extends CommandK4OpOnly {
                     return;
                 }
                 Areas.removeAreaByName(args[2].toLowerCase());
+                sender.addChatMessage(new TextComponentString("Area 'args[2]' has been deleted"));
             }
             else {
                 sender.addChatMessage(new TextComponentString("Usage: /pvptoggle area delete <name>"));
