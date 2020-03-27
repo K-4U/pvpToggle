@@ -203,7 +203,7 @@ public class CommandPvpToggle extends CommandK4OpOnly {
                 } else {
                     if (args[1].toLowerCase().equals("options")) {
                         // args[3] should be <name> of area, idk how to indicate that for tab completion
-                        if (args.length == 4) {
+                        if (args.length == 3) {
                             ret.add("get");
                             ret.add("set");
                         } else if (args.length == 5) {
