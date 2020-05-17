@@ -50,7 +50,8 @@ public class PvpToggle {
 
         DistExecutor.runWhenOn(Dist.DEDICATED_SERVER, () -> () -> {
             if (Functions.getServer().isPVPEnabled()) {
-                EventHelper.init();
+
+                FMLJavaModLoadingContext.get().getModEventBus().addListener(EventHelper::init);
             } else {
                 Log.error("PVP is not enabled on your server, PVPToggle will NOT function!");
             }

@@ -6,10 +6,7 @@ import k4unl.minecraft.pvpToggle.client.gui.GuiPvpAreaAddEdit;
 import k4unl.minecraft.pvpToggle.lib.DimensionDTO;
 import k4unl.minecraft.pvpToggle.lib.PvPArea;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author Koen Beckers (K-4U)
@@ -18,7 +15,7 @@ import java.util.UUID;
 public class ClientHandler {
 
 
-    private static final HashMap<UUID, PvPStatus> clientPvPStatus = new HashMap<>();
+    private static final Map<UUID, PvPStatus> clientPvPStatus = new HashMap<>();
     private static List<PvPArea> areas = new ArrayList<>();
     private static       boolean                    openGui         = false;
     private static       boolean                    openHolder      = false;
@@ -51,7 +48,7 @@ public class ClientHandler {
         ClientHandler.pickedLocation = pickedLocation;
     }
 
-    public static HashMap<UUID, PvPStatus> getClientPvPStatus() {
+    public static Map<UUID, PvPStatus> getClientPvPStatus() {
 
         return clientPvPStatus;
     }

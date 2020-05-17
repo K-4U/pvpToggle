@@ -6,6 +6,7 @@ import k4unl.minecraft.pvpToggle.PvpToggle;
 import k4unl.minecraft.pvpToggle.api.PvPStatus;
 import k4unl.minecraft.pvpToggle.lib.Log;
 import k4unl.minecraft.pvpToggle.lib.PvPArea;
+import k4unl.minecraft.pvpToggle.lib.config.ModInfo;
 import k4unl.minecraft.pvpToggle.lib.config.PvPConfig;
 import k4unl.minecraft.pvpToggle.network.NetworkHandler;
 import k4unl.minecraft.pvpToggle.network.packets.PacketPickedLocation;
@@ -36,29 +37,31 @@ import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Mod.EventBusSubscriber(modid = ModInfo.ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class EventHelper {
 
     private static int ticksPassed = 0;
     private static HashMap<UUID, PvPArea> players = new HashMap<>();
     private static HashMap<UUID, PlayerEntity> playerEntities = new HashMap<>();
 
-    public static void init() {
-
-        MinecraftForge.EVENT_BUS.addListener(EventHelper::onPlayerInteractEvent);
+    public static void init(final FMLCommonSetupEvent event) {
+//        Log.info("Initializing event helper");
+        MinecraftForge.EVENT_BUS.register(EventHelper.class);
+        /*MinecraftForge.EVENT_BUS.addListener(EventHelper::onPlayerInteractEvent);
         MinecraftForge.EVENT_BUS.addListener(EventHelper::onLivingAttack);
         MinecraftForge.EVENT_BUS.addListener(EventHelper::onPlayerDeath);
         MinecraftForge.EVENT_BUS.addListener(EventHelper::onPlayerRespawn);
         MinecraftForge.EVENT_BUS.addListener(EventHelper::loggedInEvent);
-        MinecraftForge.EVENT_BUS.addListener(EventHelper::tickPlayer);
+//        MinecraftForge.EVENT_BUS.addListener(EventHelper::tickPlayer);
         MinecraftForge.EVENT_BUS.addListener(EventHelper::playerChangedDimension);
-        MinecraftForge.EVENT_BUS.addListener(EventHelper::serverTickEvent);
-
-
+        MinecraftForge.EVENT_BUS.addListener(EventHelper::serverTickEvent);*/
     }
 
     @SubscribeEvent
@@ -183,12 +186,7 @@ public class EventHelper {
     @SubscribeEvent
     public static void tickPlayer(TickEvent.PlayerTickEvent event) {
 
-        if (event.phase == TickEvent.Phase.END) {
-            if (event.side.isServer()) {
-                //TODO: This could move to a custom thread.
-                Users.tickCoolDown();
-            }
-        }
+
     }
 
     @SubscribeEvent
@@ -208,6 +206,12 @@ public class EventHelper {
     public static void serverTickEvent(TickEvent.ServerTickEvent event) {
 
         if (event.phase == TickEvent.Phase.END) {
+            if (event.side.isServer()) {
+                //TODO: This could move to a custom thread.
+                Log.info("Ticking user");
+                Users.tickCoolDown();
+            }
+
             //Only check every so often
             ticksPassed++;
             if (ticksPassed == 10) {

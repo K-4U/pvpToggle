@@ -39,6 +39,7 @@ public class ClientEventHandler {
             return;
         }
 
+
         Minecraft mc = Minecraft.getInstance();
 
         GL11.glPushMatrix();
@@ -59,7 +60,7 @@ public class ClientEventHandler {
 
         Tessellator tessellator = Tessellator.getInstance();
 
-        PvPStatus status = ClientHandler.getClientPvPStatus().get(mc.player.getGameProfile().getName());
+        PvPStatus status = ClientHandler.getClientPvPStatus().get(mc.player.getGameProfile().getId());
 
         if (status == null || status == PvPStatus.ON || status == PvPStatus.FORCEDON) {
             mc.getTextureManager().bindTexture(sword);
@@ -163,7 +164,7 @@ public class ClientEventHandler {
         Vec3d renderPos = new Vec3d(x, y, z);
 
         GL11.glTranslated(renderPos.x - playerPos.x, renderPos.y - playerPos.y, renderPos.z - playerPos.z);
-        GL11.glTranslated(0D, 2.5D, 0D);
+        GL11.glTranslated(0D, 1D, 0D);
         GL11.glRotatef(-mc.getRenderManager().playerViewY, 0F, 1F, 0F);
         GL11.glRotatef(mc.getRenderManager().playerViewX, 1F, 0F, 0F);
         GL11.glScalef(.5F, -.5F, -.5F);
@@ -208,7 +209,7 @@ public class ClientEventHandler {
     }
 
     @SubscribeEvent
-    public static void tickPlayer(TickEvent event) {
+    public static void tickPlayer(TickEvent.ClientTickEvent event) {
 
         if (event.phase == TickEvent.Phase.END) {
             if (event.side.isClient()) {
