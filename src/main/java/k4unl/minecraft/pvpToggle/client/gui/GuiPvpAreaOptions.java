@@ -37,16 +37,16 @@ public class GuiPvpAreaOptions extends PvpToggleScreen {
 
 
         int titleWidth = font.getStringWidth(title);
-        WidgetLabel lblTitle = new WidgetLabel((WIDTH - titleWidth) / 2, 6, titleWidth, font.FONT_HEIGHT, title);
+        WidgetLabel lblTitle = new WidgetLabel(getX() + (WIDTH - titleWidth) / 2, getY() + 6, titleWidth, font.FONT_HEIGHT, title);
 
-        btnBack = new Button(4, 4, 20, 20, "<", (button) -> Minecraft.getInstance().displayGuiScreen(previous));
+        btnBack = new Button(getX() + 4, 4, 20, 20, "<", (button) -> Minecraft.getInstance().displayGuiScreen(previous));
 
         int y = 40;
         String announce = "Announce: ";
 //        WidgetLabel lblAnnounce = new WidgetLabel(5, y + 5, font.getStringWidth(announce), font.FONT_HEIGHT, announce);
 
         //super(xIn, yIn, widthIn, heightIn, msg);
-        CheckboxButton btnAnnounce = new CheckboxButton(5, y, font.getStringWidth(announce), font.FONT_HEIGHT, announce, area.getAnnounce()) {
+        CheckboxButton btnAnnounce = new CheckboxButton(getX() + 5, getY() + y, font.getStringWidth(announce), 20, announce, area.getAnnounce()) {
             @Override
             public void onPress() {
                 super.onPress();
@@ -62,7 +62,7 @@ public class GuiPvpAreaOptions extends PvpToggleScreen {
 //        });
 //        btnForce.setValue(area.getForced());
 
-        CheckboxButton btnForce = new CheckboxButton(5, y + 24 + 5, font.getStringWidth(forced), font.FONT_HEIGHT, forced, area.getForced()) {
+        CheckboxButton btnForce = new CheckboxButton(getX() + 5, getY() + y + 24 + 20, font.getStringWidth(forced), 20, forced, area.getForced()) {
             @Override
             public void onPress() {
                 super.onPress();

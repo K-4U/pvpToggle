@@ -1,7 +1,6 @@
 package k4unl.minecraft.pvpToggle;
 
 
-import k4unl.minecraft.k4lib.commands.CommandsRegistry;
 import k4unl.minecraft.k4lib.lib.Functions;
 import k4unl.minecraft.k4lib.lib.config.Config;
 import k4unl.minecraft.pvpToggle.api.PvpAPI;
@@ -48,14 +47,7 @@ public class PvpToggle {
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetupHandler::init);
 
-        DistExecutor.runWhenOn(Dist.DEDICATED_SERVER, () -> () -> {
-            if (Functions.getServer().isPVPEnabled()) {
 
-                FMLJavaModLoadingContext.get().getModEventBus().addListener(EventHelper::init);
-            } else {
-                Log.error("PVP is not enabled on your server, PVPToggle will NOT function!");
-            }
-        });
     }
 
     @SubscribeEvent
@@ -63,6 +55,15 @@ public class PvpToggle {
 
         PvPWorldData pvPWorldData = PvPWorldData.get(event.getServer().func_71218_a(DimensionType.OVERWORLD)); //getWorld
         boolean b = event.getServer() instanceof DedicatedServer;
-        CommandsRegistry commandsRegistry = new Commands(b, event.getServer().getCommandManager().getDispatcher());
+        new Commands(b, event.getServer().getCommandManager().getDispatcher());
+
+        DistExecutor.runWhenOn(Dist.DEDICATED_SERVER, () -> () -> {
+            if (Functions.getServer().isPVPEnabled()) {
+
+                EventHelper.init();
+            } else {
+                Log.error("PVP is not enabled on your server, PVPToggle will NOT function!");
+            }
+        });
     }
 }

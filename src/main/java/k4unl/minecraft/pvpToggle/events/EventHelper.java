@@ -6,7 +6,6 @@ import k4unl.minecraft.pvpToggle.PvpToggle;
 import k4unl.minecraft.pvpToggle.api.PvPStatus;
 import k4unl.minecraft.pvpToggle.lib.Log;
 import k4unl.minecraft.pvpToggle.lib.PvPArea;
-import k4unl.minecraft.pvpToggle.lib.config.ModInfo;
 import k4unl.minecraft.pvpToggle.lib.config.PvPConfig;
 import k4unl.minecraft.pvpToggle.network.NetworkHandler;
 import k4unl.minecraft.pvpToggle.network.packets.PacketPickedLocation;
@@ -37,23 +36,21 @@ import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Mod.EventBusSubscriber(modid = ModInfo.ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+//@Mod.EventBusSubscriber(modid = ModInfo.ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class EventHelper {
 
-    private static int ticksPassed = 0;
-    private static HashMap<UUID, PvPArea> players = new HashMap<>();
-    private static HashMap<UUID, PlayerEntity> playerEntities = new HashMap<>();
+    private int ticksPassed = 0;
+    private HashMap<UUID, PvPArea> players = new HashMap<>();
+    private HashMap<UUID, PlayerEntity> playerEntities = new HashMap<>();
 
-    public static void init(final FMLCommonSetupEvent event) {
-//        Log.info("Initializing event helper");
-        MinecraftForge.EVENT_BUS.register(EventHelper.class);
+    public static void init() {
+        Log.info("Initializing event helper");
+        MinecraftForge.EVENT_BUS.register(new EventHelper());
         /*MinecraftForge.EVENT_BUS.addListener(EventHelper::onPlayerInteractEvent);
         MinecraftForge.EVENT_BUS.addListener(EventHelper::onLivingAttack);
         MinecraftForge.EVENT_BUS.addListener(EventHelper::onPlayerDeath);
@@ -65,7 +62,7 @@ public class EventHelper {
     }
 
     @SubscribeEvent
-    public static void onPlayerInteractEvent(PlayerInteractEvent.LeftClickBlock event) {
+    public void onPlayerInteractEvent(PlayerInteractEvent.LeftClickBlock event) {
 
         if (event.getItemStack().getItem() == Items.DIAMOND_HOE && event.getEntityLiving() instanceof PlayerEntity) {
             if (ServerHandler.getPlayersPicking().contains(((PlayerEntity) event.getEntityLiving()).getGameProfile().getId())) {
@@ -78,7 +75,7 @@ public class EventHelper {
     }
 
     @SubscribeEvent
-    public static void onLivingAttack(LivingAttackEvent event) {
+    public void onLivingAttack(LivingAttackEvent event) {
 
         if (event.getEntityLiving() instanceof PlayerEntity && event.getSource() != null && event.getSource() instanceof EntityDamageSource && event.getSource().getTrueSource() instanceof PlayerEntity && !(event.getSource().getTrueSource() instanceof FakePlayer)) {
             PlayerEntity source = (PlayerEntity) event.getSource().getTrueSource();
@@ -96,7 +93,7 @@ public class EventHelper {
     }
 
     @SubscribeEvent
-    public static void onPlayerDeath(LivingDropsEvent event) {
+    public void onPlayerDeath(LivingDropsEvent event) {
         if (!(event.getEntityLiving() instanceof PlayerEntity)) {
             return;
         }
@@ -133,7 +130,7 @@ public class EventHelper {
     }
 
     @SubscribeEvent
-    public static void onPlayerRespawn(PlayerEvent.Clone event) {
+    public void onPlayerRespawn(PlayerEvent.Clone event) {
 
         if (event.isWasDeath()) {
             PlayerEntity target = event.getPlayer();
@@ -160,7 +157,7 @@ public class EventHelper {
     }
 
     @SubscribeEvent
-    public static void loggedInEvent(PlayerEvent.PlayerLoggedInEvent event) {
+    public void loggedInEvent(PlayerEvent.PlayerLoggedInEvent event) {
         if (!event.getPlayer().world.isRemote) {
             if (PvPConfig.showMessageOnLogin.get()) {
                 if (Users.hasPVPEnabled(event.getPlayer().getGameProfile().getId())) {
@@ -184,13 +181,13 @@ public class EventHelper {
     }
 
     @SubscribeEvent
-    public static void tickPlayer(TickEvent.PlayerTickEvent event) {
+    public void tickPlayer(TickEvent.PlayerTickEvent event) {
 
 
     }
 
     @SubscribeEvent
-    public static void playerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
+    public void playerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
 
         ServerHandler.updatePlayerToDimension(event.getTo(), event.getPlayer());
         //And, send him all a packet from all the users in the dimension.
@@ -203,12 +200,11 @@ public class EventHelper {
     }
 
     @SubscribeEvent
-    public static void serverTickEvent(TickEvent.ServerTickEvent event) {
+    public void serverTickEvent(TickEvent.ServerTickEvent event) {
 
         if (event.phase == TickEvent.Phase.END) {
             if (event.side.isServer()) {
                 //TODO: This could move to a custom thread.
-                Log.info("Ticking user");
                 Users.tickCoolDown();
             }
 

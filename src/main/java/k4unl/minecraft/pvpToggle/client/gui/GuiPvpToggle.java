@@ -2,7 +2,9 @@ package k4unl.minecraft.pvpToggle.client.gui;
 
 import k4unl.minecraft.k4lib.client.WidgetLabel;
 import k4unl.minecraft.pvpToggle.lib.Log;
+import k4unl.minecraft.pvpToggle.lib.PvPArea;
 import k4unl.minecraft.pvpToggle.lib.config.ModInfo;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.StringTextComponent;
@@ -59,12 +61,12 @@ public class GuiPvpToggle extends PvpToggleScreen {
         String areas = "Areas:";
 
         int titleWidth = font.getStringWidth(pvptoggleTitle);
-        WidgetLabel lblPvpToggle = new WidgetLabel((WIDTH - titleWidth) / 2, 6, titleWidth, font.FONT_HEIGHT, pvptoggleTitle);
+        WidgetLabel lblPvpToggle = new WidgetLabel(getX() + (WIDTH - titleWidth) / 2, getY() + 6, titleWidth, font.FONT_HEIGHT, pvptoggleTitle);
 
-        WidgetLabel lblAreas = new WidgetLabel(5, 21, font.getStringWidth(areas), font.FONT_HEIGHT, areas);
+        WidgetLabel lblAreas = new WidgetLabel(getX() + 5, getY() + 21, font.getStringWidth(areas), font.FONT_HEIGHT, areas);
 
-        Button addArea = new Button(WIDTH - 20 - 11, 16, 20, 20, "+", (button) -> {
-//            Minecraft.getInstance().displayGuiScreen(new GuiPvpAreaAddEdit(this, GuiPvpAreaAddEdit.mode.ADD, new PvPArea()));
+        Button addArea = new Button(getX() + WIDTH - 20 - 11, getY() + 16, 20, 20, "+", (button) -> {
+            Minecraft.getInstance().displayGuiScreen(new GuiPvpAreaAddEdit(this, GuiPvpAreaAddEdit.mode.ADD, new PvPArea()));
         });
         addArea.setFGColor(0xFF238C00);
         int listHeight = (HEIGHT - 20 - 20 - 20 - 20) / 2;
@@ -72,10 +74,10 @@ public class GuiPvpToggle extends PvpToggleScreen {
 //        areaList = new GuiAreaList(mc, WIDTH - 14, listHeight, 0, listHeight, this);
 
         String dimensions = "Dimensions:";
-        WidgetLabel lblDimensions = new WidgetLabel(5, 20 + 20 + listHeight + 9, font.getStringWidth(dimensions), font.FONT_HEIGHT, dimensions);
-        Button btnAddDimension = new Button(WIDTH - 20 - 11, 20 + 20 + listHeight + 2, 20, 20, "+", (guiButton -> {
+        WidgetLabel lblDimensions = new WidgetLabel(getX() + 5, getY() + 20 + 20 + listHeight + 9, font.getStringWidth(dimensions), font.FONT_HEIGHT, dimensions);
+        Button btnAddDimension = new Button(getX() + WIDTH - 20 - 11, getY() + 20 + 20 + listHeight + 2, 20, 20, "+", (guiButton -> {
             //We need to know the number first.
-//            Minecraft.getInstance().displayGuiScreen(new GuiPvpDimensionAdd(this));
+            Minecraft.getInstance().displayGuiScreen(new GuiPvpDimensionAdd(this));
 
         }));
         btnAddDimension.setFGColor(0xFF238C00);

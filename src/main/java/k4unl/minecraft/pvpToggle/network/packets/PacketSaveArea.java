@@ -44,8 +44,9 @@ public class PacketSaveArea extends AbstractPacket {
         Location l2 = new Location(maxX, maxY, maxZ, dimensionType.getId());
 
         PvPArea toAdd = new PvPArea(name, l1, l2, dimensionType);
-        toSave.setAnnounce(announce);
-        toSave.setForced(forced);
+        toAdd.setAnnounce(announce);
+        toAdd.setForced(forced);
+        this.toSave = toAdd;
     }
 
     @Override

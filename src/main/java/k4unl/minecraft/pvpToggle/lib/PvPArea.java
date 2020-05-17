@@ -21,6 +21,10 @@ public class PvPArea extends Area {
         this.forced = compoundNBT.getBoolean("forced");
     }
 
+    public PvPArea() {
+        super(null, null, null, null);
+    }
+
     @Override
     public CompoundNBT save() {
         CompoundNBT nbt = super.save();

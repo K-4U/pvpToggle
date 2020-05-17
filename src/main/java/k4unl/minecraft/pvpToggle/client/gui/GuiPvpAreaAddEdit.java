@@ -16,8 +16,6 @@ import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.StringTextComponent;
 
-import java.io.IOException;
-
 /**
  * @author Koen Beckers (K-4U)
  */
@@ -86,15 +84,16 @@ public class GuiPvpAreaAddEdit extends PvpToggleScreen {
         String title = (this.ourMode == GuiPvpAreaAddEdit.mode.ADD ? "Add" : "Edit") + " area " + (this.ourMode == mode.EDIT ? area.getName() : "");
 
         int titleWidth = font.getStringWidth(title);
-        WidgetLabel lblTitle = new WidgetLabel((WIDTH - titleWidth) / 2, 6, titleWidth, font.FONT_HEIGHT, title);
+        WidgetLabel lblTitle = new WidgetLabel(getX() + (WIDTH - titleWidth) / 2, getY() + 6, titleWidth, font.FONT_HEIGHT, title);
 
-        btnBack = new Button(4, 4, 20, 20, "<", (button) -> Minecraft.getInstance().displayGuiScreen(previous));
+        btnBack = new Button(getX() + 4, getY() + 4, 20, 20, "<", (button) -> Minecraft.getInstance().displayGuiScreen(previous));
 
         if (ourMode == mode.ADD) {
             String name = "Name:";
-            WidgetLabel lblName = new WidgetLabel(5, 35, font.getStringWidth(name), font.FONT_HEIGHT, name);
+            WidgetLabel lblName = new WidgetLabel(getX() + 5, getY() + 35, font.getStringWidth(name), font.FONT_HEIGHT, name);
 
-            nameField = new TextFieldWidget(font, 10 + font.getStringWidth(name), 28, 60, 20, this.name);
+            nameField = new TextFieldWidget(font, getX() + 10 + font.getStringWidth(name), getY() + 28, 60, 20, this.name);
+            nameField.setText(this.name);
             addButton(lblName);
             addButton(nameField);
         }
@@ -102,35 +101,47 @@ public class GuiPvpAreaAddEdit extends PvpToggleScreen {
         int y = (ourMode == mode.ADD ? 53 : 35);
 
         String p1 = "Point 1";
-        WidgetLabel lblPoint1 = new WidgetLabel(5, y, font.getStringWidth(p1), font.FONT_HEIGHT, p1);
+        WidgetLabel lblPoint1 = new WidgetLabel(getX() + 5, getY() + y, font.getStringWidth(p1), font.FONT_HEIGHT, p1);
 
         String p2 = "Point 2";
-        WidgetLabel lblPoint2 = new WidgetLabel((int) (WIDTH - font.getStringWidth(p2) - font.getCharWidth(' ')), y, font.getStringWidth(p2), font.FONT_HEIGHT, p2);
+        WidgetLabel lblPoint2 = new WidgetLabel(getX() + (int) (WIDTH - font.getStringWidth(p2) - font.getCharWidth(' ')), getY() + y, font.getStringWidth(p2), font.FONT_HEIGHT, p2);
 
 
         String[] coordText = new String[]{"X:", "Y:", "Z:"};
         //Render all textboxes
         for (int i = 0; i < 3; i++) {
-            WidgetLabel x1 = new WidgetLabel(5, y + 20 + (24 * i), font.getStringWidth(coordText[i]), font.FONT_HEIGHT, coordText[i]);
-            WidgetLabel x2 = new WidgetLabel(WIDTH - 40 - 5 - font.getStringWidth(coordText[i]) - 5, y + 20 + (24 * i), font.getStringWidth(coordText[i]), font.FONT_HEIGHT, coordText[i]);
+            WidgetLabel x1 = new WidgetLabel(getX() + 5, getY() + y + 20 + (24 * i), font.getStringWidth(coordText[i]), font.FONT_HEIGHT, coordText[i]);
+            WidgetLabel x2 = new WidgetLabel(getX() + WIDTH - 40 - 5 - font.getStringWidth(coordText[i]) - 5, getY() + y + 20 + (24 * i), font.getStringWidth(coordText[i]), font.FONT_HEIGHT, coordText[i]);
 
-            point1Fields[i] = new TextFieldWidget(font, 15, y + 14 + (24 * i), 40, 20, coords1[i] + "");
-            point2Fields[i] = new TextFieldWidget(font, WIDTH - 40 - 5, y + 14 + (24 * i), 40, 20, coords2[i] + "");
+            String first = coords1[i] + "";
+            String second = coords2[i] + "";
+
+            point1Fields[i] = new TextFieldWidget(font, getX() + 15, getY() + y + 14 + (24 * i), 40, 20, first);
+            point1Fields[i].setText(first);
+            point2Fields[i] = new TextFieldWidget(font, getX() + WIDTH - 40 - 5, getY() + y + 14 + (24 * i), 40, 20, second);
+            point2Fields[i].setText(second);
             addButton(point1Fields[i]);
             addButton(point2Fields[i]);
             addButton(x1);
             addButton(x2);
         }
-        Button btnPick1 = new Button(4, y + 14 + (24 * 3), font.getStringWidth("Pick") + 10, 20, "Pick", (guiButton -> {
+        Button btnPick1 = new Button(getX() + 4, getY() + y + 14 + (24 * 3), font.getStringWidth("Pick") + 10, 20, "Pick", (guiButton -> {
             //TODO: Send packet to server, minimize gui to the left hand side
+            //Save the name
+            if (mode.ADD == ourMode) {
+                this.name = nameField.getText();
+            }
             ClientHandler.setLocationPicking(1);
             ClientHandler.setIsPicking(true);
             PvpToggle.networkHandler.getChannel().sendToServer(new PacketPlayerPicksLocation());
             ClientHandler.setHolder(this);
             Minecraft.getInstance().displayGuiScreen(null);
         }));
-        Button btnPick2 = new Button(WIDTH - 5 - font.getStringWidth("Pick") - 10, y + 14 + (24 * 3), font.getStringWidth("Pick") + 10, 20, "Pick", (guiButton -> {
+        Button btnPick2 = new Button(getX() + WIDTH - 5 - font.getStringWidth("Pick") - 10, getY() + y + 14 + (24 * 3), font.getStringWidth("Pick") + 10, 20, "Pick", (guiButton -> {
             //TODO: Send packet to server, minimize gui to the left hand side
+            if (mode.ADD == ourMode) {
+                this.name = nameField.getText();
+            }
             ClientHandler.setLocationPicking(2);
             ClientHandler.setIsPicking(true);
             PvpToggle.networkHandler.getChannel().sendToServer(new PacketPlayerPicksLocation());
@@ -138,20 +149,20 @@ public class GuiPvpAreaAddEdit extends PvpToggleScreen {
             Minecraft.getInstance().displayGuiScreen(null);
         }));
 
-        Button btnSave = new Button(WIDTH - 5 - font.getStringWidth("Save") - 10, HEIGHT - 20 - 5, font.getStringWidth("Save") + 10, 20, "Save", (guiButton -> {
+        Button btnSave = new Button(getX() + WIDTH - 5 - font.getStringWidth("Save") - 10, getY() + HEIGHT - 20 - 5, font.getStringWidth("Save") + 10, 20, "Save", (guiButton -> {
             boolean errors = false;
             if (ourMode == mode.ADD) {
-                /*if (!validateTextField(nameField)) {
+                if (!validateTextField(nameField)) {
                     errors = true;
                 }
                 for (int i = 0; i < 3; i++) {
-                    if (!validateTextField(point1Fields[i])) {
+                    if (!validateCoordField(point1Fields[i])) {
                         errors = true;
                     }
-                    if (!validateTextField(point2Fields[i])) {
+                    if (!validateCoordField(point2Fields[i])) {
                         errors = true;
                     }
-                }*/
+                }
             }
             if (!errors) {
                 //Save it:
@@ -171,7 +182,7 @@ public class GuiPvpAreaAddEdit extends PvpToggleScreen {
                 ClientHandler.setOpenGui(true);
             }
         }));
-        Button btnOptions = new Button(4, HEIGHT - 20 - 5, font.getStringWidth("Options") + 10, 20, "Options", (guiButton -> {
+        Button btnOptions = new Button(getX() + 4, getY() + HEIGHT - 20 - 5, font.getStringWidth("Options") + 10, 20, "Options", (guiButton -> {
             //TODO: Open new GUI with the options.
             Minecraft.getInstance().displayGuiScreen(new GuiPvpAreaOptions(this, ourMode, area));
         }));
@@ -186,96 +197,34 @@ public class GuiPvpAreaAddEdit extends PvpToggleScreen {
         addButton(btnSave);
         addButton(btnOptions);
     }
-/*
-    @Override
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
 
-        super.mouseClicked(mouseX, mouseY, mouseButton);
-        mouseX = mouseX - guiLeft;
-        mouseY = mouseY - guiTop;
-        for (int i = 0; i < 3; i++) {
-            point1Fields[i].mouseClicked(mouseX, mouseY, mouseButton);
-            point2Fields[i].mouseClicked(mouseX, mouseY, mouseButton);
-        }
-        if (ourMode == mode.ADD) {
-            nameField.mouseClicked(mouseX, mouseY, mouseButton);
-        }
-    }
-
-    @Override
-    protected void mouseReleased(int mouseX, int mouseY, int state) {
-
-        super.mouseReleased(mouseX, mouseY, state);
-    }
-
-    @Override
-    public void handleMouseInput() throws IOException {
-
-        super.handleMouseInput();
-    }*/
-
-    /**
-     * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
-     * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
-     */
-    protected void keyTyped(char typedChar, int keyCode) throws IOException {
-
-/*
-        if (!Character.isAlphabetic(typedChar) && Character.getType(typedChar) != Character.OTHER_PUNCTUATION && typedChar != '=' && typedChar != '+') {
-            for (int i = 0; i < 3; i++) {
-                point1Fields[i].textboxKeyTyped(typedChar, keyCode);
-                if (validateCoordField(point1Fields[i])) {
-                    coords1[i] = Integer.parseInt(point1Fields[i].getText());
-                }
-
-                point2Fields[i].textboxKeyTyped(typedChar, keyCode);
-                if (validateCoordField(point2Fields[i])) {
-                    coords2[i] = Integer.parseInt(point2Fields[i].getText());
-                }
-            }
-        }
-        nameField.textboxKeyTyped(typedChar, keyCode);
-        validateTextField(nameField);
-        name = nameField.getText();
-*/
-        if (keyCode != 28 && keyCode != 156) {
-            if (keyCode == 1) {
-                this.btnBack.onPress();
-                //this.actionPerformed(this.cancelBtn);
-            }
-        } else {
-            //this.actionPerformed(this.doneBtn);
-        }
-    }
-/*
-    private boolean validateTextField(GuiTextField field) {
+    private boolean validateTextField(TextFieldWidget field) {
 
         if (field.getText().isEmpty()) {
-            field.setNeedsAttention(true);
+            field.setTextColor(0XFF8c0023);
             return false;
         } else {
-            field.setNeedsAttention(false);
+            field.setTextColor(14737632);
             return true;
         }
     }
 
-    private boolean validateCoordField(GuiTextField field) {
+    private boolean validateCoordField(TextFieldWidget field) {
 
         if (field.getText().isEmpty()) {
-            field.setNeedsAttention(true);
+            field.setTextColor(0XFF8c0023);
             return false;
         } else {
             try {
                 int x = Integer.parseInt(field.getText());
             } catch (NumberFormatException e) {
-                field.setNeedsAttention(true);
+                field.setTextColor(0XFF8c0023);
                 return false;
             }
         }
-        field.setNeedsAttention(false);
+        field.setTextColor(14737632);
         return true;
     }
- */
 
     @Override
     public ResourceLocation getBackground() {

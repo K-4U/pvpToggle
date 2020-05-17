@@ -8,9 +8,11 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import k4unl.minecraft.k4lib.commands.impl.CommandK4OpOnly;
 import k4unl.minecraft.k4lib.lib.Location;
+import k4unl.minecraft.pvpToggle.PvpToggle;
 import k4unl.minecraft.pvpToggle.api.PvPStatus;
 import k4unl.minecraft.pvpToggle.lib.PvPArea;
 import k4unl.minecraft.pvpToggle.lib.config.ModInfo;
+import k4unl.minecraft.pvpToggle.network.packets.PacketDataToClient;
 import k4unl.minecraft.pvpToggle.server.Areas;
 import k4unl.minecraft.pvpToggle.server.ServerHandler;
 import net.minecraft.command.CommandSource;
@@ -27,6 +29,7 @@ public class CommandPvpToggle extends CommandK4OpOnly {
     @Override
     public void register(LiteralArgumentBuilder<CommandSource> argumentBuilder) {
         argumentBuilder.then(Commands.literal("version").executes(this::showVersion));
+        argumentBuilder.then(Commands.literal("ui").executes(this::openUI));
 
         LiteralArgumentBuilder<CommandSource> areaCommand = Commands.literal("area");
 
@@ -64,6 +67,20 @@ public class CommandPvpToggle extends CommandK4OpOnly {
                                 .then(Commands.literal("announce").executes(this::getAreaAnnounce))
                                 .then(Commands.literal("forced").executes(this::getAreaForced)))
                 );
+    }
+
+    private int openUI(CommandContext<CommandSource> context) throws CommandSyntaxException {
+
+        PacketDataToClient packet = new PacketDataToClient();
+        packet.areasSet = true;
+        packet.areaList = Areas.getAreas();
+        packet.dimensionsSet = true;
+        packet.dimensions = ServerHandler.createDimensionDTOList();
+        packet.allDimensionsSet = true;
+        packet.allDimensions = ServerHandler.createAllDimensionsDTOList();
+
+        PvpToggle.networkHandler.sendTo(packet, context.getSource().asPlayer());
+        return 0;
     }
 
     private int getAreaForced(CommandContext<CommandSource> context) {

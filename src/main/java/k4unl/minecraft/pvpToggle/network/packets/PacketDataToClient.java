@@ -138,6 +138,7 @@ public class PacketDataToClient extends AbstractPacket {
             ClientHandler.setAllDimensions(this.allDimensions);
         }
         ClientHandler.setOpenGui(true);
+
         //Because it's only here we actually open the GUI.
         //This means the server has checked if the requester is actually op.
     }

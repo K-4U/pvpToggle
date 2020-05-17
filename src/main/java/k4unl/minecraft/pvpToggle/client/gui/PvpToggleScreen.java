@@ -25,4 +25,12 @@ public abstract class PvpToggleScreen extends Screen {
         this.blit(relX, relY, 0, 0, WIDTH, HEIGHT);
         super.render(mouseX, mouseY, partialTicks);
     }
+
+    int getX() {
+        return (this.width - WIDTH) / 2;
+    }
+
+    int getY() {
+        return (this.height - HEIGHT) / 2;
+    }
 }
